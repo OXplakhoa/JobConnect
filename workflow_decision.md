@@ -215,3 +215,104 @@ You already had 90% of this figured out. The three things you were missing:
 1. **CONTEXT.md** — shared language (adopt from Matt Pocock)
 2. **Grill step** — think before generating (adopt the concept, use `/ask` skill)
 3. **Confidence** — your workflow is solid. Stop second-guessing it. Start building.
+
+
+--- 
+
+## Example of prompt could been used:
+1. Grill me (before every session)
+I'm about to work on this batch: T-00, T-01, T-02, T-03.
+
+Before writing any code, grill me on every decision that could 
+cause problems later if decided wrong now. Ask one question at 
+a time and wait for my answer.
+
+Context: Read BRIEF.md, CLAUDE.md, and DESIGN.md first.
+For a single risky task:
+I'm about to start T-24 (embedding pipeline).
+
+Grill me hard on this one — it's the foundation for all AI features.
+Ask about edge cases, failure modes, and architecture decisions.
+One question at a time. Read BRIEF.md section 4 and 7 first.
+
+2. Scaffold / implement after grill
+Grill is done. Now implement T-00, T-01, T-02, T-03.
+
+Rules:
+- Follow CLAUDE.md strictly — architecture, naming, forbidden patterns
+- Follow DESIGN.md for all theme tokens (AppColors, AppTextStyles)
+- Do not implement any feature logic — foundation only
+- After each file, pause and tell me what you just created before 
+  moving to the next
+
+3. Impeccable craft (when building a UI screen)
+/impeccable craft JobCard widget
+
+This card appears in the job search list (T-16). It must show:
+- Job title (Title style, SemiBold 600)
+- Company name + logo
+- Location + salary range
+- Match score badge (if coming from AI tab)
+- Bookmark toggle
+
+Primary user: Vietnamese student on Android, one-handed use.
+Read DESIGN.md and PRODUCT.md before starting.
+/impeccable craft ForYouPage
+
+This is the AI suggestion tab (T-25). Shows top 20 job matches 
+with match score %. Empty state when no profile skills added yet.
+Loading skeleton while fetching. Error state if Gemini is down.
+Read DESIGN.md — Forward Teal accent on match score only.
+
+4. Review after implementation
+/review lib/features/auth/
+
+Check against CLAUDE.md rules:
+1. No Supabase calls outside datasources/
+2. No setState anywhere
+3. Repository returns Either<Failure, T> — no raw exceptions
+4. All providers use @riverpod annotation
+5. No hardcoded colors or strings
+
+List violations with file + line number. Don't fix yet — report first.
+
+5. Impeccable polish (end of a feature)
+/impeccable polish lib/features/jobs/presentation/
+
+Focus on:
+- Typography hierarchy (DESIGN.md Weight Ladder Rule)
+- Teal accent used on ≤1 element per screen
+- No pure white backgrounds, no pure black text
+- All tap targets ≥ 48dp for one-handed Android use
+- Vietnamese diacritics: body line-height ≥ 1.4
+
+Flag issues. Show before/after for each fix.
+
+6. Impeccable critique (T-38 polish pass)
+/impeccable critique lib/
+
+Run a full design audit across all pages. For each screen:
+1. Is the primary CTA identifiable within 2 seconds?
+2. Are there 2+ teal elements competing? (Rarity Rule violation)
+3. Any font below 12sp?
+4. Any pure #fff or #000?
+5. Any card structure that looks identical to another card type?
+
+Output as a prioritized list: Critical → Minor.
+
+7. Commit (after manual check passes)
+Generate a conventional commit message for what we just built in T-06.
+
+Format: feat(auth): <description>
+Rules from CLAUDE.md: 1 logical change only, no co-authoring fluff.
+Just the commit message, nothing else.
+
+The loop in practice for 1 session:
+1. Grill prompt     → answer agent's questions
+2. Implement prompt → agent writes code
+3. Review prompt    → agent reports violations
+4. Fix + polish     → /impeccable polish on that feature folder
+5. Commit prompt    → get conventional commit message
+6. Manually run: flutter analyze → fix any remaining warnings
+7. git commit → tick the checkbox in TASKS.md
+Never skip step 3 — that's the one that catches architecture drift before it compounds.
