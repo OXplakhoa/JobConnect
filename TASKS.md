@@ -9,22 +9,22 @@
 
 > Chưa có feature nào — chỉ setup nền tảng để mọi feature sau đều dùng lại.
 
-- [ ] **T-00: Flutter project init + packages**
+- [X] **T-00: Flutter project init + packages**
   Tạo Flutter project, thêm toàn bộ dependencies/dev_dependencies từ CLAUDE.md, cấu hình `analysis_options.yaml`, tạo `.env.example`.
 
-- [ ] **T-01: Core — Theme + Design System**
+- [X] **T-01: Core — Theme + Design System**
   `core/theme/`: `AppColors`, `AppTextStyles`, `AppTheme` (light + dark). `core/constants/`: `AppConstants`, `AppStrings`.
 
-- [ ] **T-02: Core — Error handling + Failure classes**
+- [X] **T-02: Core — Error handling + Failure classes**
   `core/errors/`: `Failure` sealed class (`NetworkFailure`, `DatabaseFailure`, `AuthFailure`, `UnexpectedFailure`). `core/extensions/`: `BuildContext` extensions, `Either` helpers.
 
-- [ ] **T-03: Core — Router shell + Auth guard**
+- [X] **T-03: Core — Router shell + Auth guard**
   `core/router/`: `AppRouter` với `go_router`, `ShellRoute` cho bottom nav, `AuthGuard` redirect (chưa có logic auth thật — chỉ skeleton guard). Placeholder `HomePage`, `LoginPage`.
 
-- [ ] **T-04: Supabase — Schema migration (toàn bộ 22 bảng)**
+- [X] **T-04: Supabase — Schema migration (toàn bộ 22 bảng)**
   Tạo SQL migration script theo BRIEF.md §7. Bật pgvector extension. Chạy trên Supabase Dashboard. KHÔNG tạo RLS ở bước này.
 
-- [ ] **T-05: Supabase — RLS policies (toàn bộ bảng)**
+- [X] **T-05: Supabase — RLS policies (toàn bộ bảng)**
   Viết RLS policies cho tất cả 22 bảng. Nguyên tắc: Seeker chỉ read/write data của mình, Recruiter chỉ manage company + jobs của mình, Admin read all.
 
 ---
