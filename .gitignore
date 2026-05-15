@@ -49,3 +49,4 @@ app.*.map.json
 *.jks
 GoogleService-Info.plist
 google-services.json
+*.sh
