@@ -6,12 +6,14 @@ import '../../shared/widgets/placeholder_page.dart';
 import '../constants/app_strings.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/auth/presentation/pages/role_selection_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/domain/entities/auth_state.dart';
 
 part 'app_router.g.dart';
 
-final publicRoutes = ['/login', '/register', '/onboarding'];
+final publicRoutes = ['/login', '/register', '/forgot-password', '/onboarding'];
 
 @riverpod
 GoRouter appRouter(Ref ref) {
@@ -112,8 +114,12 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => const RegisterPage(),
       ),
       GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
         path: '/onboarding',
-        builder: (context, state) => const PlaceholderPage(title: 'Onboarding'),
+        builder: (context, state) => const RoleSelectionPage(),
       ),
     ],
   );

@@ -12,4 +12,6 @@ class AppStrings {
   static const loading = 'Đang tải...';
   static const errorGeneral = 'Đã có lỗi xảy ra';
   static const retry = 'Thử lại';
+  static const forgotPasswordSuccess =
+      'Nếu email này tồn tại trong hệ thống, bạn sẽ nhận được link đặt lại mật khẩu trong vài phút.';
 }

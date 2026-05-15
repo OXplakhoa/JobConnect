@@ -10,6 +10,10 @@ abstract class AuthDatasource {
   });
 
   Future<void> login({required String email, required String password});
+  Future<void> signInWithGoogle();
+  Future<void> completeOnboarding(UserRole role);
+  Future<void> resetPassword(String email);
+  Future<void> signOut();
 }
 
 class AuthDatasourceImpl implements AuthDatasource {
@@ -40,5 +44,32 @@ class AuthDatasourceImpl implements AuthDatasource {
       email: email,
       password: password,
     );
+  }
+
+  @override
+  Future<void> signInWithGoogle() async {
+    await _supabase.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: 'com.jobconnect.job_connect://login-callback',
+    );
+  }
+
+  @override
+  Future<void> completeOnboarding(UserRole role) async {
+    final userId = _supabase.auth.currentUser!.id;
+    await _supabase.from('profiles').update({
+      'role': role.name,
+      'is_onboarding_complete': true,
+    }).eq('id', userId);
+  }
+
+  @override
+  Future<void> resetPassword(String email) async {
+    await _supabase.auth.resetPasswordForEmail(email);
+  }
+
+  @override
+  Future<void> signOut() async {
+    await _supabase.auth.signOut();
   }
 }

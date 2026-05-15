@@ -47,4 +47,52 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthErrorMapper.fromUnknown(e, st));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> signInWithGoogle() async {
+    try {
+      await _datasource.signInWithGoogle();
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthErrorMapper.fromAuthException(e));
+    } catch (e, st) {
+      return Left(AuthErrorMapper.fromUnknown(e, st));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> completeOnboarding(UserRole role) async {
+    try {
+      await _datasource.completeOnboarding(role);
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthErrorMapper.fromAuthException(e));
+    } catch (e, st) {
+      return Left(AuthErrorMapper.fromUnknown(e, st));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword(String email) async {
+    try {
+      await _datasource.resetPassword(email);
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthErrorMapper.fromAuthException(e));
+    } catch (e, st) {
+      return Left(AuthErrorMapper.fromUnknown(e, st));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> signOut() async {
+    try {
+      await _datasource.signOut();
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthErrorMapper.fromAuthException(e));
+    } catch (e, st) {
+      return Left(AuthErrorMapper.fromUnknown(e, st));
+    }
+  }
 }

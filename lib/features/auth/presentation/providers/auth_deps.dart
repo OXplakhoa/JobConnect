@@ -6,6 +6,10 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/google_login_usecase.dart';
+import '../../domain/usecases/complete_onboarding_usecase.dart';
+import '../../domain/usecases/forgot_password_usecase.dart';
+import '../../domain/usecases/logout_usecase.dart';
 
 part 'auth_deps.g.dart';
 
@@ -27,4 +31,24 @@ RegisterUseCase registerUseCase(Ref ref) {
 @riverpod
 LoginUseCase loginUseCase(Ref ref) {
   return LoginUseCase(ref.watch(authRepositoryProvider));
+}
+
+@riverpod
+GoogleLoginUseCase googleLoginUseCase(Ref ref) {
+  return GoogleLoginUseCase(ref.watch(authRepositoryProvider));
+}
+
+@riverpod
+CompleteOnboardingUseCase completeOnboardingUseCase(Ref ref) {
+  return CompleteOnboardingUseCase(ref.watch(authRepositoryProvider));
+}
+
+@riverpod
+ForgotPasswordUseCase forgotPasswordUseCase(Ref ref) {
+  return ForgotPasswordUseCase(ref.watch(authRepositoryProvider));
+}
+
+@riverpod
+LogoutUseCase logoutUseCase(Ref ref) {
+  return LogoutUseCase(ref.watch(authRepositoryProvider));
 }
