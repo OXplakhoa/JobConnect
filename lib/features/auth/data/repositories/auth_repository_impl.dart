@@ -32,4 +32,19 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthErrorMapper.fromUnknown(e, st));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await _datasource.login(email: email, password: password);
+      return const Right(null);
+    } on AuthException catch (e) {
+      return Left(AuthErrorMapper.fromAuthException(e));
+    } catch (e, st) {
+      return Left(AuthErrorMapper.fromUnknown(e, st));
+    }
+  }
 }

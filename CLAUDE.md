@@ -235,6 +235,29 @@ return jobs.when(
 
 ---
 
+## Provider Pattern for User-Specific Data
+
+```dart
+// ✅ Correct — watches authProvider, auto-rebuilds on auth change
+@riverpod
+Future<List<Application>> myApplications(Ref ref) async {
+  final auth = ref.watch(authProvider);
+  if (auth is! AuthAuthenticated) return [];
+  return ref.watch(applicationRepositoryProvider).getMyApplications(auth.userId);
+}
+
+// ❌ Wrong — doesn't react to auth changes, stale data after logout/login
+@riverpod
+Future<List<Application>> myApplications(Ref ref) async {
+  final userId = Supabase.instance.client.auth.currentUser!.id; // NEVER
+  return ref.watch(applicationRepositoryProvider).getMyApplications(userId);
+}
+```
+
+Applies to: bookmarks, applications, aiSuggestions, conversations, notifications.
+
+---
+
 ## Git Convention (Conventional Commits)
 
 ```

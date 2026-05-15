@@ -9,4 +9,9 @@ abstract class AuthRepository {
     required UserRole role,
     required String fullName,
   });
+
+  Future<Either<Failure, void>> login({
+    required String email,
+    required String password,
+  });
 }

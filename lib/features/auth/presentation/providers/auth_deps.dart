@@ -5,6 +5,7 @@ import '../../data/datasources/auth_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/login_usecase.dart';
 
 part 'auth_deps.g.dart';
 
@@ -21,4 +22,9 @@ AuthRepository authRepository(Ref ref) {
 @riverpod
 RegisterUseCase registerUseCase(Ref ref) {
   return RegisterUseCase(ref.watch(authRepositoryProvider));
+}
+
+@riverpod
+LoginUseCase loginUseCase(Ref ref) {
+  return LoginUseCase(ref.watch(authRepositoryProvider));
 }

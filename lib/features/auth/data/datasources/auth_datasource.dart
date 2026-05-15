@@ -8,6 +8,8 @@ abstract class AuthDatasource {
     required UserRole role,
     required String fullName,
   });
+
+  Future<void> login({required String email, required String password});
 }
 
 class AuthDatasourceImpl implements AuthDatasource {
@@ -29,6 +31,14 @@ class AuthDatasourceImpl implements AuthDatasource {
         'role': role.name,
         'full_name': fullName,
       },
+    );
+  }
+
+  @override
+  Future<void> login({required String email, required String password}) async {
+    await _supabase.auth.signInWithPassword(
+      email: email,
+      password: password,
     );
   }
 }
