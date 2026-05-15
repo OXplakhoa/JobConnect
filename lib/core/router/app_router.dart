@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../shared/widgets/placeholder_page.dart';
 import '../constants/app_strings.dart';
 import 'user_role.dart';
+import '../../features/auth/presentation/pages/register_page.dart';
 
 // T-03: hardcoded, replaced in T-07
 UserRole _resolveRole() => UserRole.seeker;
@@ -91,7 +92,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/register',
-      builder: (context, state) => const PlaceholderPage(title: AppStrings.register),
+      builder: (context, state) => const RegisterPage(),
     ),
   ],
 );
