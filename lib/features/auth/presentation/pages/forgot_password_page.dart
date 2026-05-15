@@ -4,9 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/validators.dart';
 import '../providers/auth_deps.dart';
+import '../providers/forgot_password_state.dart';
 import '../widgets/auth_text_field.dart';
-
-enum ForgotPasswordState { idle, loading, success }
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -18,7 +17,6 @@ class ForgotPasswordPage extends ConsumerStatefulWidget {
 class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  ForgotPasswordState _state = ForgotPasswordState.idle;
 
   @override
   void dispose() {
@@ -29,7 +27,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _state = ForgotPasswordState.loading);
+    ref.read(forgotPasswordStateNotifierProvider.notifier).setStatus(ForgotPasswordStatus.loading);
 
     final res = await ref.read(forgotPasswordUseCaseProvider).call(_emailController.text.trim());
 
@@ -37,31 +35,33 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
 
     res.fold(
       (failure) {
-        setState(() => _state = ForgotPasswordState.idle);
+        ref.read(forgotPasswordStateNotifierProvider.notifier).setStatus(ForgotPasswordStatus.idle);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(failure.message)),
         );
       },
       (_) {
-        setState(() => _state = ForgotPasswordState.success);
+        ref.read(forgotPasswordStateNotifierProvider.notifier).setStatus(ForgotPasswordStatus.success);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(forgotPasswordStateNotifierProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Quên mật khẩu')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: _state == ForgotPasswordState.success
+        child: state == ForgotPasswordStatus.success
             ? _buildSuccessView()
-            : _buildFormView(),
+            : _buildFormView(state),
       ),
     );
   }
 
-  Widget _buildFormView() {
+  Widget _buildFormView(ForgotPasswordStatus state) {
     return Form(
       key: _formKey,
       child: Column(
@@ -79,8 +79,8 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: _state == ForgotPasswordState.loading ? null : _submit,
-            child: _state == ForgotPasswordState.loading
+            onPressed: state == ForgotPasswordStatus.loading ? null : _submit,
+            child: state == ForgotPasswordStatus.loading
                 ? const SizedBox(
                     height: 20,
                     width: 20,

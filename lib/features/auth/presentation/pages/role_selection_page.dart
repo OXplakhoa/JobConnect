@@ -4,28 +4,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/router/user_role.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_deps.dart';
-import '../providers/register_state.dart';
+import '../providers/role_selection_state.dart';
 
-class RoleSelectionPage extends ConsumerStatefulWidget {
+class RoleSelectionPage extends ConsumerWidget {
   const RoleSelectionPage({super.key});
 
-  @override
-  ConsumerState<RoleSelectionPage> createState() => _RoleSelectionPageState();
-}
-
-class _RoleSelectionPageState extends ConsumerState<RoleSelectionPage> {
-  bool _isLoading = false;
-
-  Future<void> _submit(UserRole role) async {
-    setState(() => _isLoading = true);
+  Future<void> _submit(BuildContext context, WidgetRef ref, UserRole role) async {
+    ref.read(roleSelectionIsLoadingProvider.notifier).setLoading(true);
 
     final res = await ref.read(completeOnboardingUseCaseProvider).call(role);
 
-    if (mounted) setState(() => _isLoading = false);
+    ref.read(roleSelectionIsLoadingProvider.notifier).setLoading(false);
 
     res.fold(
       (failure) {
-        if (!mounted) return;
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(failure.message)),
         );
@@ -37,8 +30,9 @@ class _RoleSelectionPageState extends ConsumerState<RoleSelectionPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final selectedRole = ref.watch(registerRoleProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedRole = ref.watch(roleSelectionRoleProvider);
+    final isLoading = ref.watch(roleSelectionIsLoadingProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Chọn vai trò')),
@@ -69,7 +63,7 @@ class _RoleSelectionPageState extends ConsumerState<RoleSelectionPage> {
                     title: 'Ứng viên',
                     icon: Icons.person_search,
                     isSelected: selectedRole == UserRole.seeker,
-                    onTap: () => ref.read(registerRoleProvider.notifier).setRole(UserRole.seeker),
+                    onTap: () => ref.read(roleSelectionRoleProvider.notifier).setRole(UserRole.seeker),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -78,15 +72,15 @@ class _RoleSelectionPageState extends ConsumerState<RoleSelectionPage> {
                     title: 'Nhà tuyển dụng',
                     icon: Icons.business,
                     isSelected: selectedRole == UserRole.recruiter,
-                    onTap: () => ref.read(registerRoleProvider.notifier).setRole(UserRole.recruiter),
+                    onTap: () => ref.read(roleSelectionRoleProvider.notifier).setRole(UserRole.recruiter),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: selectedRole == null || _isLoading ? null : () => _submit(selectedRole),
-              child: _isLoading
+              onPressed: selectedRole == null || isLoading ? null : () => _submit(context, ref, selectedRole),
+              child: isLoading
                   ? const SizedBox(
                       height: 20,
                       width: 20,
