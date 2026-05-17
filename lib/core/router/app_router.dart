@@ -10,6 +10,8 @@ import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/role_selection_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/domain/entities/auth_state.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
 
 part 'app_router.g.dart';
 
@@ -99,7 +101,7 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: '/profile',
-                builder: (context, state) => const PlaceholderPage(title: AppStrings.profile),
+                builder: (context, state) => const ProfilePage(),
               ),
             ],
           ),
@@ -120,6 +122,10 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => const RoleSelectionPage(),
+      ),
+      GoRoute(
+        path: '/profile/edit',
+        builder: (context, state) => const EditProfilePage(),
       ),
     ],
   );
