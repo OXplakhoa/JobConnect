@@ -27,6 +27,18 @@ _Avoid_: Moderator, Superuser
 Hồ sơ cá nhân của Seeker (tên, ảnh, headline, bio, location).
 _Avoid_: User account (profile ≠ auth account), Hồ sơ (ambiguous — dùng Profile nhất quán)
 
+**Work Experience**:
+Kinh nghiệm làm việc của Seeker — công ty, vị trí, thời gian, is_current flag khi đang làm việc. Bảng `work_experiences`.
+_Avoid_: Job History, Employment, Career
+
+**Education**:
+Học vấn của Seeker — trường, bằng cấp, chuyên ngành. Bảng `educations`.
+_Avoid_: Academic Background, School History, Qualification
+
+**Certificate**:
+Chứng chỉ của Seeker — tên, tổ chức cấp, ngày cấp, URL xác nhận. Bảng `certificates`.
+_Avoid_: Certification (dùng Certificate cho entity — "certification" là quá trình, "certificate" là kết quả), License, Credential
+
 **Job Post**:
 Tin tuyển dụng do Recruiter đăng. Bảng `job_posts`.
 _Avoid_: Job (ambiguous — có thể chỉ post hoặc nghề), Listing, Tin (quá ngắn)
@@ -157,6 +169,9 @@ Admin từ chối. `job_posts.status = 'rejected'`
 ## Relationships
 
 - A **Seeker** has exactly one **Profile**
+- A **Seeker** has zero or more **Work Experiences**
+- A **Seeker** has zero or more **Educations**
+- A **Seeker** has zero or more **Certificates**
 - A **Seeker** declares zero or more **User Skills**
 - A **Seeker** submits zero or more **Applications** to **Job Posts**
 - An **Application** carries exactly one **Resume**
