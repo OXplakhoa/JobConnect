@@ -34,4 +34,23 @@ class Validators {
     if (value != password) return 'Mật khẩu không khớp';
     return null;
   }
+
+  // Profile validators — T-10
+  static String? headline(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    if (value.trim().length > 120) return 'Tiêu đề không được quá 120 ký tự';
+    return null;
+  }
+
+  static String? bio(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    if (value.trim().length > 500) return 'Giới thiệu không được quá 500 ký tự';
+    return null;
+  }
+
+  static String? location(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    if (value.trim().length > 100) return 'Địa điểm không được quá 100 ký tự';
+    return null;
+  }
 }

@@ -14,6 +14,8 @@ _$ProfileModelImpl _$$ProfileModelImplFromJson(Map<String, dynamic> json) =>
       isOnboardingComplete: json['is_onboarding_complete'] as bool,
       avatarUrl: json['avatar_url'] as String?,
       headline: json['headline'] as String?,
+      bio: json['bio'] as String?,
+      location: json['location'] as String?,
       isBanned: json['is_banned'] as bool? ?? false,
     );
 
@@ -25,6 +27,8 @@ Map<String, dynamic> _$$ProfileModelImplToJson(_$ProfileModelImpl instance) =>
       'is_onboarding_complete': instance.isOnboardingComplete,
       'avatar_url': instance.avatarUrl,
       'headline': instance.headline,
+      'bio': instance.bio,
+      'location': instance.location,
       'is_banned': instance.isBanned,
     };
 

@@ -45,6 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>JobConnect cần truy cập thư viện ảnh để cập nhật ảnh đại diện</string>
+	<key>NSCameraUsageDescription</key>
+	<string>JobConnect cần truy cập camera để chụp ảnh đại diện</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

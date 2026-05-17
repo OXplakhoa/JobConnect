@@ -146,6 +146,7 @@ dependencies:
   flutter_svg: ^2.0.0
   intl: ^0.19.0
   equatable: ^2.0.5
+  image_picker: ^1.0.0
 
 dev_dependencies:
   riverpod_generator: ^2.4.0
@@ -255,6 +256,27 @@ Future<List<Application>> myApplications(Ref ref) async {
 ```
 
 Applies to: bookmarks, applications, aiSuggestions, conversations, notifications.
+
+---
+
+## Shared Domain Entities
+
+Entities used by 3+ features live in `shared/domain/entities/`, NOT in any single feature's domain layer.
+Currently: `UserProfile`
+
+---
+
+## Bottom Sheet Styling
+
+Bottom sheets: always set `backgroundColor: AppColors.surfaceVariant`. Never use default.
+
+---
+
+## Provider Ownership
+
+- `auth_provider` → authentication state only (session, role, onboarding status)
+- `currentProfileProvider` → full `UserProfile` data (bio, avatar, headline, location)
+- Never put `UserProfile` fields in `AuthAuthenticated`
 
 ---
 

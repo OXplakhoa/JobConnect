@@ -30,6 +30,8 @@ mixin _$ProfileModel {
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
   String? get headline => throw _privateConstructorUsedError;
+  String? get bio => throw _privateConstructorUsedError;
+  String? get location => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_banned')
   bool get isBanned => throw _privateConstructorUsedError;
 
@@ -57,6 +59,8 @@ abstract class $ProfileModelCopyWith<$Res> {
     @JsonKey(name: 'is_onboarding_complete') bool isOnboardingComplete,
     @JsonKey(name: 'avatar_url') String? avatarUrl,
     String? headline,
+    String? bio,
+    String? location,
     @JsonKey(name: 'is_banned') bool isBanned,
   });
 }
@@ -82,6 +86,8 @@ class _$ProfileModelCopyWithImpl<$Res, $Val extends ProfileModel>
     Object? isOnboardingComplete = null,
     Object? avatarUrl = freezed,
     Object? headline = freezed,
+    Object? bio = freezed,
+    Object? location = freezed,
     Object? isBanned = null,
   }) {
     return _then(
@@ -110,6 +116,14 @@ class _$ProfileModelCopyWithImpl<$Res, $Val extends ProfileModel>
                 ? _value.headline
                 : headline // ignore: cast_nullable_to_non_nullable
                       as String?,
+            bio: freezed == bio
+                ? _value.bio
+                : bio // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            location: freezed == location
+                ? _value.location
+                : location // ignore: cast_nullable_to_non_nullable
+                      as String?,
             isBanned: null == isBanned
                 ? _value.isBanned
                 : isBanned // ignore: cast_nullable_to_non_nullable
@@ -136,6 +150,8 @@ abstract class _$$ProfileModelImplCopyWith<$Res>
     @JsonKey(name: 'is_onboarding_complete') bool isOnboardingComplete,
     @JsonKey(name: 'avatar_url') String? avatarUrl,
     String? headline,
+    String? bio,
+    String? location,
     @JsonKey(name: 'is_banned') bool isBanned,
   });
 }
@@ -160,6 +176,8 @@ class __$$ProfileModelImplCopyWithImpl<$Res>
     Object? isOnboardingComplete = null,
     Object? avatarUrl = freezed,
     Object? headline = freezed,
+    Object? bio = freezed,
+    Object? location = freezed,
     Object? isBanned = null,
   }) {
     return _then(
@@ -188,6 +206,14 @@ class __$$ProfileModelImplCopyWithImpl<$Res>
             ? _value.headline
             : headline // ignore: cast_nullable_to_non_nullable
                   as String?,
+        bio: freezed == bio
+            ? _value.bio
+            : bio // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        location: freezed == location
+            ? _value.location
+            : location // ignore: cast_nullable_to_non_nullable
+                  as String?,
         isBanned: null == isBanned
             ? _value.isBanned
             : isBanned // ignore: cast_nullable_to_non_nullable
@@ -207,6 +233,8 @@ class _$ProfileModelImpl extends _ProfileModel {
     @JsonKey(name: 'is_onboarding_complete') required this.isOnboardingComplete,
     @JsonKey(name: 'avatar_url') this.avatarUrl,
     this.headline,
+    this.bio,
+    this.location,
     @JsonKey(name: 'is_banned') this.isBanned = false,
   }) : super._();
 
@@ -229,12 +257,16 @@ class _$ProfileModelImpl extends _ProfileModel {
   @override
   final String? headline;
   @override
+  final String? bio;
+  @override
+  final String? location;
+  @override
   @JsonKey(name: 'is_banned')
   final bool isBanned;
 
   @override
   String toString() {
-    return 'ProfileModel(id: $id, role: $role, fullName: $fullName, isOnboardingComplete: $isOnboardingComplete, avatarUrl: $avatarUrl, headline: $headline, isBanned: $isBanned)';
+    return 'ProfileModel(id: $id, role: $role, fullName: $fullName, isOnboardingComplete: $isOnboardingComplete, avatarUrl: $avatarUrl, headline: $headline, bio: $bio, location: $location, isBanned: $isBanned)';
   }
 
   @override
@@ -252,6 +284,9 @@ class _$ProfileModelImpl extends _ProfileModel {
                 other.avatarUrl == avatarUrl) &&
             (identical(other.headline, headline) ||
                 other.headline == headline) &&
+            (identical(other.bio, bio) || other.bio == bio) &&
+            (identical(other.location, location) ||
+                other.location == location) &&
             (identical(other.isBanned, isBanned) ||
                 other.isBanned == isBanned));
   }
@@ -266,6 +301,8 @@ class _$ProfileModelImpl extends _ProfileModel {
     isOnboardingComplete,
     avatarUrl,
     headline,
+    bio,
+    location,
     isBanned,
   );
 
@@ -292,6 +329,8 @@ abstract class _ProfileModel extends ProfileModel {
     required final bool isOnboardingComplete,
     @JsonKey(name: 'avatar_url') final String? avatarUrl,
     final String? headline,
+    final String? bio,
+    final String? location,
     @JsonKey(name: 'is_banned') final bool isBanned,
   }) = _$ProfileModelImpl;
   const _ProfileModel._() : super._();
@@ -314,6 +353,10 @@ abstract class _ProfileModel extends ProfileModel {
   String? get avatarUrl;
   @override
   String? get headline;
+  @override
+  String? get bio;
+  @override
+  String? get location;
   @override
   @JsonKey(name: 'is_banned')
   bool get isBanned;
