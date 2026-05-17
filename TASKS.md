@@ -22,7 +22,7 @@
   `core/router/`: `AppRouter` với `go_router`, `ShellRoute` cho bottom nav, `AuthGuard` redirect (chưa có logic auth thật — chỉ skeleton guard). Placeholder `HomePage`, `LoginPage`.
 
 - [X] **T-04: Supabase — Schema migration (toàn bộ 22 bảng)**
-  Tạo SQL migration script theo BRIEF.md §7. Bật pgvector extension. Chạy trên Supabase Dashboard. KHÔNG tạo RLS ở bước này.
+  Tạo SQL migration script theo docs/BRIEF.md §7. Bật pgvector extension. Chạy trên Supabase Dashboard. KHÔNG tạo RLS ở bước này.
 
 - [X] **T-05: Supabase — RLS policies (toàn bộ bảng)**
   Viết RLS policies cho tất cả 22 bảng. Nguyên tắc: Seeker chỉ read/write data của mình, Recruiter chỉ manage company + jobs của mình, Admin read all.

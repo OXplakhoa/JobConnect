@@ -18,7 +18,7 @@
 | Architecture | Clean Architecture (simplified 3-layer) |
 | Target | Android + iOS |
 
-Xem chi tiết tại `BRIEF.md`.
+Xem chi tiết tại `docs/BRIEF.md`.
 
 ---
 
@@ -125,6 +125,25 @@ features/xxx/
 
 ---
 
+## Architecture Term Glossary
+
+> Quick reference cho các thuật ngữ kiến trúc dùng trong project.
+
+| Term | Meaning | Layer |
+|---|---|---|
+| **Datasource** | Class gọi Supabase trực tiếp — chỉ nằm trong `data/datasources/` | Data |
+| **Model** | Freezed class + `fromJson`/`toJson` — mapping DB ↔ Dart | Data |
+| **Repository (abstract)** | Interface khai báo contract — KHÔNG biết Supabase tồn tại | Domain |
+| **Repository (impl)** | Implement abstract repo, dùng Datasource, trả `Either<Failure, T>` | Data |
+| **Entity** | Pure Dart class — domain object, KHÔNG có json annotation | Domain |
+| **Use Case** | 1 class = 1 hành động business (GetJobsUseCase, ApplyJobUseCase) | Domain |
+| **Provider** | Riverpod `@riverpod` annotation — expose state cho UI | Presentation |
+| **Notifier** | Riverpod `@riverpod` class có methods mutate state | Presentation |
+| **Page** | Widget full-screen, là route destination | Presentation |
+| **Failure** | Sealed class cho error types — KHÔNG dùng exception | Domain |
+
+---
+
 ## Approved Packages
 
 KHÔNG thêm package ngoài danh sách này mà không hỏi:
@@ -220,7 +239,7 @@ return jobs.when(
 
 - Lấy current user: `Supabase.instance.client.auth.currentUser` — KHÔNG tự store userId
 - Realtime chat: subscribe trong provider, `ref.onDispose` để cancel subscription
-- Storage paths: `resumes/{userId}/{filename}` · `avatars/{userId}/avatar.jpg`
+- Storage paths: `avatars/{userId}/avatar.jpg` · `logos/{companyId}/logo.jpg` · `resumes/{userId}/{filename}`
 - **Row Level Security (RLS): LUÔN bật trên tất cả bảng** — không tắt để debug
 - Không hardcode Supabase URL và anon key — lấy qua `--dart-define`
 
@@ -297,10 +316,17 @@ test(auth): add unit test for LoginUseCase
 
 ---
 
+## Abbreviation Rules
+
+- **KHÔNG** viết tắt domain terms: dùng `application` không dùng `app`, dùng `notification` không dùng `noti`
+- **OK** viết tắt kỹ thuật chuẩn: `auth`, `repo`, `impl`, `UI`, `DB`, `RLS`, `FCM`, `PDF`, `CV`
+
+---
+
 ## DO NOT
 
-- Tạo file ngoài cấu trúc thư mục đã định trong BRIEF.md
-- Thay đổi database schema mà không cập nhật `BRIEF.md` phần Schema
+- Tạo file ngoài cấu trúc thư mục đã định trong docs/BRIEF.md
+- Thay đổi database schema mà không cập nhật `docs/BRIEF.md` phần Schema
 - Implement feature chưa có trong `TASKS.md`
 - Merge code chưa có người review (dù là nhóm nhỏ)
 - Bỏ qua linter errors — fix trước khi commit (`flutter analyze`)

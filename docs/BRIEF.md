@@ -178,7 +178,7 @@ Cách tích hợp:
 5. npx impeccable detect src/  ← chạy trước commit để bắt AI anti-patterns
 ```
 
-`DESIGN.md` đặt cùng cấp với `BRIEF.md` và `CLAUDE.md`.
+`DESIGN.md` đặt trong `docs/` cùng cấp với `BRIEF.md` và `PRODUCT.md`.
 
 ---
 
@@ -297,10 +297,18 @@ reports              (id, reporter_id, target_type, target_id, reason, status, c
 
 ```
 /
-├── BRIEF.md     ← file này — design doc tổng thể
-├── CLAUDE.md    ← rules code cho AI agent
-├── DESIGN.md    ← rules UI/UX cho AI agent (generate bởi Impeccable)
-└── TASKS.md     ← checklist feature (tạo sau khi scaffold xong)
+├── CLAUDE.md        ← rules code cho AI agent
+├── CONTEXT.md       ← shared domain language (thuật ngữ dự án)
+├── TASKS.md         ← checklist feature (tiến độ hiện tại)
+├── README.md        ← project overview
+│
+├── docs/
+│   ├── BRIEF.md     ← file này — design doc tổng thể
+│   ├── PRODUCT.md   ← user personas + brand personality
+│   ├── DESIGN.md    ← rules UI/UX (generate bởi Impeccable)
+│   ├── adr/         ← Architecture Decision Records
+│   ├── plans/       ← implementation plans theo task batch
+│   └── archive/     ← completed reference docs
 ```
 
 ---

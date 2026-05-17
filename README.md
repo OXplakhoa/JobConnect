@@ -1,16 +1,48 @@
-# job_connect
+# JobConnect
 
-A new Flutter project.
+AI-powered job matching app for Vietnamese students and fresh graduates.
+Connects **Seekers** with **Recruiters** using pgvector similarity search and Gemini embeddings.
 
-## Getting Started
+## Tech Stack
 
-This project is a starting point for a Flutter application.
+- **Frontend:** Flutter 3.x (Dart 3.x)
+- **State:** Riverpod 2.x (`@riverpod` code generation)
+- **Backend:** Supabase (Auth + PostgreSQL + Storage + Realtime)
+- **AI:** Google Gemini API (embeddings + Flash explanations)
+- **Architecture:** Clean Architecture (3-layer)
 
-A few resources to get you started if this is your first Flutter project:
+## Quick Start
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+flutter pub get
+flutter run --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+See `.env.example` for required environment variables.
+
+## Documentation
+
+| File | Purpose |
+|------|---------|
+| `CLAUDE.md` | Agent coding rules — architecture, naming, forbidden patterns |
+| `CONTEXT.md` | Shared domain language — terms, relationships, naming conventions |
+| `TASKS.md` | Feature checklist — current progress |
+| `docs/BRIEF.md` | Full project spec — features, schema, tech stack |
+| `docs/PRODUCT.md` | User personas, brand personality, design principles |
+| `docs/DESIGN.md` | UI/UX design system — colors, typography, component rules |
+| `docs/plans/` | Implementation plans for each task batch |
+| `docs/adr/` | Architecture Decision Records |
+| `docs/archive/` | Completed reference docs |
+
+## Project Structure
+
+```
+lib/
+├── core/           # Theme, router, errors, constants, utils
+├── features/       # Feature modules (auth, profile, jobs, ...)
+│   └── {feature}/
+│       ├── data/           # Datasources, models, repository impl
+│       ├── domain/         # Entities, abstract repos, use cases
+│       └── presentation/   # Pages, widgets, providers
+└── shared/         # Cross-feature entities, widgets, providers
+```
