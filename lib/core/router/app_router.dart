@@ -417,6 +417,29 @@ GoRouter appRouter(Ref ref) {
           conversationId: state.pathParameters['conversationId']!,
         ),
       ),
+      // Root-level deep-link targets for notification taps. The notifications
+      // page is itself a root-navigator route, so it hits the same crash as
+      // /chat above if it pushes a shell-nested route (/applications/:id,
+      // /recruiter/posts/:id/applicants, /search/:id). These render the same
+      // destination pages directly on the root navigator instead.
+      GoRoute(
+        path: '/application/:id',
+        builder: (context, state) => ApplicationDetailPage(
+          applicationId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/applicants/:jobId',
+        builder: (context, state) =>
+            ApplicantsPage(jobId: state.pathParameters['jobId']!),
+      ),
+      GoRoute(
+        path: '/job/:id',
+        builder: (context, state) => JobDetailPage(
+          jobPostId: state.pathParameters['id']!,
+          aiSuggestion: state.extra as AiSuggestion?,
+        ),
+      ),
     ],
   );
 }

@@ -77,27 +77,31 @@ class NotificationsPage extends ConsumerWidget {
     final data = notification.dataJson;
     if (data == null) return;
 
+    // This page is a root-navigator route, so it must push root-level routes —
+    // pushing a shell-nested route (/applications/:id, /recruiter/posts/:id/...)
+    // re-mounts the StatefulShellRoute and crashes on duplicate branch-navigator
+    // GlobalKeys. See app_router.dart for the matching root-level deep-link routes.
     switch (notification.type) {
       case 'application_status':
       case 'interview':
         final applicationId = data['application_id'] as String?;
         if (applicationId != null) {
-          context.push('/applications/$applicationId');
+          context.push('/application/$applicationId');
         }
       case 'new_applicant':
         final jobId = data['job_id'] as String?;
         if (jobId != null) {
-          context.push('/recruiter/posts/$jobId/applicants');
+          context.push('/applicants/$jobId');
         }
       case 'message':
         final conversationId = data['conversation_id'] as String?;
         if (conversationId != null) {
-          context.push('/conversations/$conversationId');
+          context.push('/chat/$conversationId');
         }
       case 'job_alert':
         final jobId = data['job_id'] as String?;
         if (jobId != null) {
-          context.push('/search/$jobId');
+          context.push('/job/$jobId');
         }
       default:
         break;
