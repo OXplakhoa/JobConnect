@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/presentation/widgets/connection_loop_logo.dart';
 import '../../../../shared/presentation/widgets/premium_button.dart';
@@ -94,7 +95,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       });
     }
 
-    return Scaffold(
+    // The auth flow is brand canvas — always Light Minimal, never tinted by the
+    // OS dark setting. Pin the subtree to the light theme so inherited text /
+    // field / button colors resolve light regardless of system brightness.
+    return Theme(
+      data: AppTheme.light,
+      child: Scaffold(
       backgroundColor: AppColors.canvas,
       body: SafeArea(
         child: Center(
@@ -186,6 +192,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
