@@ -106,7 +106,7 @@ class AdminDatasource {
       'status': status,
       'action': action,
       'resolved_by': resolvedBy,
-      'resolved_at': DateTime.now().toIso8601String(),
+      'resolved_at': DateTime.now().toUtc().toIso8601String(),
     }).eq('id', reportId).select('id');
     _ensureUpdated(updated, 'cập nhật báo cáo');
   }
@@ -115,8 +115,11 @@ class AdminDatasource {
     required String userId,
     required DateTime bannedUntil,
   }) async {
+    // Serialize as UTC: DateTime.now() is local (UTC+7); a naive
+    // toIso8601String() has no offset, so a TIMESTAMPTZ column reads it back as
+    // UTC and the ban appears ~7h longer than chosen. toUtc() pins the instant.
     final updated = await _supabase.from('profiles').update({
-      'banned_until': bannedUntil.toIso8601String(),
+      'banned_until': bannedUntil.toUtc().toIso8601String(),
     }).eq('id', userId).select('id');
     _ensureUpdated(updated, 'cập nhật trạng thái khóa');
   }
@@ -164,7 +167,7 @@ class AdminDatasource {
       'code': code,
       'created_by': _supabase.auth.currentUser!.id,
       'role': role,
-      'expires_at': DateTime.now().add(const Duration(hours: 24)).toIso8601String(),
+      'expires_at': DateTime.now().toUtc().add(const Duration(hours: 24)).toIso8601String(),
     });
     return code;
   }
