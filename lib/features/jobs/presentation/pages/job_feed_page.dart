@@ -16,6 +16,7 @@ import '../../../../shared/presentation/widgets/premium_button.dart';
 import '../../../../shared/presentation/widgets/spotlight_search_bar.dart';
 import '../../../ai_suggestion/presentation/providers/ai_suggestion_provider.dart';
 import '../../../ai_suggestion/presentation/widgets/for_you_feed.dart';
+import '../../../notification/presentation/widgets/notification_bell.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../domain/entities/job_search_result.dart';
 import '../providers/job_feed_provider.dart';
@@ -150,7 +151,13 @@ class _FeedHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ConnectionLoopLogo(size: 36, animated: true),
+        const Row(
+          children: [
+            ConnectionLoopLogo(size: 36, animated: true),
+            Spacer(),
+            NotificationBell(),
+          ],
+        ),
         const SizedBox(height: AppSpacing.space5),
         Text(
           'Chào $greetingName,',

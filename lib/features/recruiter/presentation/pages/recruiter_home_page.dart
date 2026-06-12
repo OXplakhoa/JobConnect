@@ -10,6 +10,7 @@ import '../../../../shared/presentation/widgets/app_gradient_background.dart';
 import '../../../auth/domain/entities/auth_state.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../chat/presentation/providers/chat_provider.dart';
+import '../../../notification/presentation/widgets/notification_bell.dart';
 
 import '../../domain/entities/recruiter_stats.dart';
 import '../../presentation/providers/company_provider.dart';
@@ -64,6 +65,8 @@ class RecruiterHomePage extends ConsumerWidget {
                               ],
                             ),
                           ),
+                          const NotificationBell(),
+                          const SizedBox(width: 12),
                           if (companyAsync.valueOrNull?.logoUrl != null)
                             CircleAvatar(
                               radius: 28,
