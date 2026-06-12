@@ -100,11 +100,15 @@ class JobSearchDatasourceImpl implements JobSearchDatasource {
         query = query.eq('job_locations.is_remote', filter.isRemote!);
       }
 
-      // Salary range filter
+      // Salary range filter — match jobs whose [salary_min, salary_max] band
+      // OVERLAPS the selected [min, max] band, not just those fully contained
+      // inside it. Two ranges overlap when job.salary_max >= filter.min AND
+      // job.salary_min <= filter.max. (e.g. a 13–19M job matches a 15–20M
+      // filter.) An open-ended filter (max == null) only needs the lower bound.
       if (filter.salaryRange != null) {
-        query = query.gte('salary_min', filter.salaryRange!.min);
+        query = query.gte('salary_max', filter.salaryRange!.min);
         if (filter.salaryRange!.max != null) {
-          query = query.lte('salary_max', filter.salaryRange!.max!);
+          query = query.lte('salary_min', filter.salaryRange!.max!);
         }
       }
 
