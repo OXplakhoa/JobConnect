@@ -25,6 +25,7 @@ abstract class AdminRepository {
     required DateTime bannedUntil,
   });
   Future<Either<Failure, void>> sendWarning(String userId, String message);
+  Future<Either<Failure, void>> removeWarning(String userId);
   Future<Either<Failure, void>> closeJobPost(String jobPostId);
   Future<Either<Failure, void>> changeUserRole({
     required String userId,

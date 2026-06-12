@@ -125,6 +125,13 @@ class AdminDatasource {
   }
 
   Future<void> sendWarning(String userId, String message) async {
+    // Mark the warning state on the profile (the source of truth for the
+    // "Đã cảnh cáo" badge and for un-warning), then notify the user.
+    final updated = await _supabase.from('profiles').update({
+      'warned_at': DateTime.now().toUtc().toIso8601String(),
+    }).eq('id', userId).select('id');
+    _ensureUpdated(updated, 'cập nhật trạng thái cảnh cáo');
+
     await _supabase.from('notifications').insert({
       'user_id': userId,
       'type': 'warning',
@@ -132,6 +139,13 @@ class AdminDatasource {
       'body': message,
       'data_json': {},
     });
+  }
+
+  Future<void> removeWarning(String userId) async {
+    final updated = await _supabase.from('profiles').update({
+      'warned_at': null,
+    }).eq('id', userId).select('id');
+    _ensureUpdated(updated, 'gỡ cảnh cáo');
   }
 
   Future<void> closeJobPost(String jobPostId) async {

@@ -132,6 +132,18 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
+  Future<Either<Failure, void>> removeWarning(String userId) async {
+    try {
+      await _datasource.removeWarning(userId);
+      return const Right(null);
+    } on PostgrestException catch (e) {
+      return Left(DatabaseFailure(message: e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> closeJobPost(String jobPostId) async {
     try {
       await _datasource.closeJobPost(jobPostId);

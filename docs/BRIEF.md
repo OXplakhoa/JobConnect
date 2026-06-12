@@ -268,6 +268,7 @@ interview_schedules  (id, application_id, scheduled_at, location, note, status)
 conversations        (id, seeker_id, recruiter_id, job_id, created_at)
 messages             (id, conversation_id, sender_id, content, created_at, read_at)
 notifications        (id, user_id, type, title, body, data_json, read, created_at)
+                     -- type ∈ application_status | new_applicant | job_alert | interview | message | system | warning
 device_tokens        (id, user_id, fcm_token, platform, created_at)
 
 -- NHÓM 7: AI & Vector Search ⭐
@@ -285,6 +286,7 @@ reports              (id, reporter_id, target_type, target_id, reason, details, 
 -- NHÓM 9: Admin
 admin_invites        (id, code UNIQUE, created_by, used_by, expires_at, created_at)
 profiles.banned_until (TIMESTAMPTZ) -- replaces is_banned with time-based ban
+profiles.warned_at    (TIMESTAMPTZ) -- admin warning state; NULL = not warned, set on warn / cleared on un-warn
 ```
 
 > Tổng: **22 bảng** (profiles + 21 bảng) — RLS bật trên tất cả.

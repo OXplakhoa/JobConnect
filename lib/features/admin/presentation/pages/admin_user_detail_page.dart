@@ -81,15 +81,27 @@ class _UserDetailContent extends ConsumerWidget {
           ),
           // §6: destructive choice = red text; the safe action (Hủy) is the
           // bolder default — never a filled red button.
+          actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              style: TextButton.styleFrom(foregroundColor: AppColors.error),
-              child: const Text('Xóa'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Hủy'),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                    ),
+                    child: const Text('Xóa'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Hủy'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -174,14 +186,24 @@ class _UserDetailContent extends ConsumerWidget {
             border: InputBorder.none,
           ),
         ),
+        actionsPadding: const EdgeInsets.fromLTRB(24, 4, 24, 20),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Gửi'),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(context, controller.text),
+                  child: const Text('Gửi'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -196,9 +218,87 @@ class _UserDetailContent extends ConsumerWidget {
       (failure) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(failure.message)),
       ),
-      (_) => ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã gửi cảnh cáo')),
+      (_) {
+        ref.invalidate(adminUsersProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã gửi cảnh cáo')),
+        );
+      },
+    );
+  }
+
+  Future<void> _removeWarning(BuildContext context, WidgetRef ref) async {
+    final repo = ref.read(adminRepositoryProvider);
+    final result = await repo.removeWarning(user['id'] as String);
+
+    if (!context.mounted) return;
+    result.fold(
+      (failure) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(failure.message)),
       ),
+      (_) {
+        ref.invalidate(adminUsersProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã gỡ cảnh cáo')),
+        );
+      },
+    );
+  }
+
+  Future<void> _unlockUser(BuildContext context, WidgetRef ref) async {
+    final repo = ref.read(adminRepositoryProvider);
+    final result = await repo.banUser(
+      userId: user['id'] as String,
+      bannedUntil: DateTime(2000, 1, 1),
+    );
+    if (!context.mounted) return;
+    result.fold(
+      (failure) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(failure.message)),
+      ),
+      (_) {
+        ref.invalidate(adminUsersProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã mở khóa người dùng')),
+        );
+      },
+    );
+  }
+
+  Future<void> _changeRole(BuildContext context, WidgetRef ref) async {
+    final currentRole = user['role'] as String? ?? 'seeker';
+    final newRole = await showDialog<String>(
+      context: context,
+      builder: (_) => _RoleChangeDialog(currentRole: currentRole),
+    );
+    if (newRole == null || newRole == currentRole) return;
+
+    final repo = ref.read(adminRepositoryProvider);
+    final result = await repo.changeUserRole(
+      userId: user['id'] as String,
+      role: newRole,
+    );
+    if (!context.mounted) return;
+
+    result.fold(
+      (failure) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(failure.message))),
+      (_) {
+        ref.invalidate(adminUsersProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Đã đổi vai trò thành ${switch (newRole) {
+                'admin' => 'Quản trị viên',
+                'recruiter' => 'Nhà tuyển dụng',
+                _ => 'Người kiếm việc',
+              }}',
+            ),
+          ),
+        );
+        context.pop();
+      },
     );
   }
 
@@ -211,6 +311,7 @@ class _UserDetailContent extends ConsumerWidget {
     final isBanned =
         bannedUntil != null && DateTime.now().isBefore(bannedUntil);
     final isPermanent = isBanned && bannedUntil.year >= 2099;
+    final isWarned = user['warned_at'] != null;
 
     final createdAt = user['created_at'] != null
         ? DateTime.tryParse(user['created_at'].toString())
@@ -277,6 +378,15 @@ class _UserDetailContent extends ConsumerWidget {
                     fontSize: 12,
                   ),
                 ),
+              if (isWarned)
+                Chip(
+                  label: const Text('Đã cảnh cáo'),
+                  backgroundColor: AppColors.accent.withValues(alpha: 0.15),
+                  labelStyle: const TextStyle(
+                    color: AppColors.accent,
+                    fontSize: 12,
+                  ),
+                ),
             ],
           ),
           if (createdAt != null) ...[
@@ -294,92 +404,55 @@ class _UserDetailContent extends ConsumerWidget {
           const SizedBox(height: 16),
           const Text('Hành động', style: AppTextStyles.sectionTitle),
           const SizedBox(height: 12),
+
+          // ── Cảnh cáo ──────────────────────────────────────────────
           _ActionButton(
             icon: Icons.warning_amber,
-            label: 'Cảnh cáo',
+            label: isWarned ? 'Cảnh cáo lại' : 'Cảnh cáo',
             onTap: () => _sendWarning(context, ref),
           ),
-          const SizedBox(height: 8),
+          if (isWarned) ...[
+            const SizedBox(height: 8),
+            _ActionButton(
+              icon: Icons.check_circle_outline,
+              label: 'Gỡ cảnh cáo',
+              onTap: () => _removeWarning(context, ref),
+            ),
+          ],
+
+          // ── Khóa tài khoản (Tạm khóa ↔ Mở khóa) ───────────────────
+          const SizedBox(height: 16),
           _ActionButton(
             icon: Icons.timer_off,
             label: 'Tạm khóa',
             destructive: true,
             onTap: () => _showBanDialog(context, ref),
           ),
-          const SizedBox(height: 8),
+          if (isBanned) ...[
+            const SizedBox(height: 8),
+            _ActionButton(
+              icon: Icons.lock_open,
+              label: 'Mở khóa',
+              onTap: () => _unlockUser(context, ref),
+            ),
+          ],
+
+          // ── Vai trò ───────────────────────────────────────────────
+          const SizedBox(height: 16),
+          _ActionButton(
+            icon: Icons.switch_account,
+            label: 'Thay đổi vai trò',
+            onTap: () => _changeRole(context, ref),
+          ),
+
+          // ── Xóa tài khoản (hành động nặng nhất, đặt cuối) ──────────
+          const SizedBox(height: 16),
           _ActionButton(
             icon: Icons.delete_forever,
             label: 'Xóa tài khoản',
             destructive: true,
             onTap: () => _showBanDialog(context, ref, permanent: true),
           ),
-          const SizedBox(height: 8),
-          _ActionButton(
-            icon: Icons.switch_account,
-            label: 'Thay đổi vai trò',
-            onTap: () async {
-              final currentRole = user['role'] as String? ?? 'seeker';
-              final newRole = await showDialog<String>(
-                context: context,
-                builder: (_) => _RoleChangeDialog(currentRole: currentRole),
-              );
-              if (newRole == null || newRole == currentRole) return;
-
-              final repo = ref.read(adminRepositoryProvider);
-              final result = await repo.changeUserRole(
-                userId: user['id'] as String,
-                role: newRole,
-              );
-              if (!context.mounted) return;
-
-              result.fold(
-                (failure) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(failure.message)));
-                },
-                (_) {
-                  ref.invalidate(adminUsersProvider);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Đã đổi vai trò thành ${switch (newRole) {
-                          'admin' => 'Quản trị viên',
-                          'recruiter' => 'Nhà tuyển dụng',
-                          _ => 'Người kiếm việc',
-                        }}',
-                      ),
-                    ),
-                  );
-                  context.pop();
-                },
-              );
-            },
-          ),
-          if (isBanned)
-            _ActionButton(
-              icon: Icons.lock_open,
-              label: 'Mở khóa',
-              onTap: () async {
-                final repo = ref.read(adminRepositoryProvider);
-                final result = await repo.banUser(
-                  userId: user['id'] as String,
-                  bannedUntil: DateTime(2000, 1, 1),
-                );
-                if (!context.mounted) return;
-                result.fold(
-                  (failure) => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(failure.message)),
-                  ),
-                  (_) {
-                    ref.invalidate(adminUsersProvider);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Đã mở khóa người dùng')),
-                    );
-                  },
-                );
-              },
-            ),
         ],
       ),
     );
@@ -503,15 +576,24 @@ class _RoleChangeDialogState extends State<_RoleChangeDialog> {
           );
         }).toList(),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 4, 24, 20),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Hủy'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, _selected),
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-          child: const Text('Lưu'),
+        Row(
+          children: [
+            Expanded(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Hủy'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context, _selected),
+                child: const Text('Lưu'),
+              ),
+            ),
+          ],
         ),
       ],
     );

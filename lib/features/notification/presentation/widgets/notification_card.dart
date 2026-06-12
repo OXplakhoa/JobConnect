@@ -28,6 +28,7 @@ class NotificationCard extends StatelessWidget {
         'job_alert' => Icons.notifications_active_outlined,
         'interview' => Icons.event_available_outlined,
         'message' => Icons.chat_bubble_outline_rounded,
+        'warning' => Icons.warning_amber_rounded,
         'system' => Icons.info_outline_rounded,
         'ai_suggestion' || 'ai_match' || 'ai' => Icons.auto_awesome,
         _ => Icons.notifications_outlined,
