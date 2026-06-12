@@ -259,6 +259,7 @@ class _MyJobPostsPageState extends ConsumerState<MyJobPostsPage>
             message,
             style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
@@ -274,6 +275,12 @@ class _MyJobPostsPageState extends ConsumerState<MyJobPostsPage>
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.onPrimary,
+                // The global theme stretches buttons full-width
+                // (minimumSize.width == infinity); shrink to content so the
+                // safe/confirm pair sits inline instead of overflowing into
+                // a stacked full-width bar.
+                minimumSize: const Size(96, 44),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
               ),
               child: const Text(AppStrings.confirm),
             ),

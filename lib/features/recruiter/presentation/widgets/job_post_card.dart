@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/presentation/widgets/premium_button.dart';
 import '../../domain/entities/job_post.dart';
 
 /// Card widget for displaying a job post in the recruiter's list.
@@ -101,7 +103,10 @@ class JobPostCard extends StatelessWidget {
             ],
 
             // Action buttons
-            if (_hasActions) ...[const SizedBox(height: 12), _buildActions()],
+            if (_hasActions) ...[
+              const SizedBox(height: 12),
+              _buildActions(context),
+            ],
           ],
         ),
       ),
@@ -142,62 +147,72 @@ class JobPostCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActions() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+  /// Action hierarchy (§6): the forward move (Đăng lại/Đăng tin) is the single
+  /// bold primary; coexisting actions (Sửa, Xem ứng viên, Đóng) are quiet
+  /// secondaries; Xóa is destructive red text on its own line — never a
+  /// competing filled or bordered button.
+  ///
+  /// The coexisting actions sit in a [Wrap] of content-sized buttons: they
+  /// share one row when they fit and flow onto a second row when they don't,
+  /// so long Vietnamese labels (e.g. "Xem ứng viên" in the active state's
+  /// three-button row) never overflow a fixed equal-width slot.
+  Widget _buildActions(BuildContext context) {
+    final onPrimary = onPublish ?? onResubmit;
+    final main = <Widget>[
+      if (onEdit != null)
+        PremiumButton(
+          label: 'Sửa',
+          variant: PremiumButtonVariant.secondary,
+          expand: false,
+          icon: const Icon(Icons.edit_outlined),
+          onPressed: onEdit,
+        ),
+      if (onViewApplicants != null)
+        PremiumButton(
+          label: AppStrings.viewApplicants,
+          variant: PremiumButtonVariant.secondary,
+          expand: false,
+          icon: const Icon(Icons.people_outline),
+          onPressed: onViewApplicants,
+        ),
+      if (onClose != null)
+        PremiumButton(
+          label: 'Đóng',
+          variant: PremiumButtonVariant.secondary,
+          expand: false,
+          icon: const Icon(Icons.lock_outline),
+          onPressed: onClose,
+        ),
+      if (onPrimary != null)
+        PremiumButton(
+          label: jobPost.status == 'rejected'
+              ? AppStrings.resubmit
+              : AppStrings.publish,
+          expand: false,
+          icon: const Icon(Icons.publish_outlined),
+          onPressed: onPrimary,
+        ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (onEdit != null)
-          OutlinedButton.icon(
-            onPressed: onEdit,
-            icon: const Icon(Icons.edit, size: 16),
-            label: const Text('Sửa'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-            ),
+        if (main.isNotEmpty)
+          Wrap(
+            spacing: AppSpacing.space2,
+            runSpacing: AppSpacing.space2,
+            children: main,
           ),
-        if (onPublish != null)
-          FilledButton.icon(
-            onPressed: onPublish,
-            icon: const Icon(Icons.publish, size: 16),
-            label: Text(
-              jobPost.status == 'rejected'
-                  ? AppStrings.resubmit
-                  : AppStrings.publish,
-            ),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-            ),
-          ),
-        if (onClose != null)
-          OutlinedButton.icon(
-            onPressed: onClose,
-            icon: const Icon(Icons.close, size: 16),
-            label: const Text('Đóng'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.warning,
-              side: const BorderSide(color: AppColors.warning),
-            ),
-          ),
-        if (onViewApplicants != null)
-          OutlinedButton.icon(
-            onPressed: onViewApplicants,
-            icon: const Icon(Icons.people_outline, size: 16),
-            label: const Text(AppStrings.viewApplicants),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-            ),
-          ),
-        if (onDiscard != null)
-          TextButton.icon(
+        if (onDiscard != null) ...[
+          if (main.isNotEmpty) const SizedBox(height: AppSpacing.space2),
+          PremiumButton(
+            label: 'Xóa',
+            variant: PremiumButtonVariant.destructive,
+            expand: false,
+            icon: const Icon(Icons.delete_outline),
             onPressed: onDiscard,
-            icon: const Icon(Icons.delete_outline, size: 16),
-            label: const Text('Xóa'),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
           ),
+        ],
       ],
     );
   }

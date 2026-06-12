@@ -69,7 +69,21 @@ class PremiumButton extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.space2),
             ],
-            Text(label, style: AppTextStyles.label.copyWith(color: fg)),
+            // When the button stretches (expand), its width is bounded by the
+            // parent — let the label shrink/ellipsize instead of overflowing.
+            // Content-sized buttons (expand: false) size to the full label.
+            if (expand)
+              Flexible(
+                child: Text(
+                  label,
+                  style: AppTextStyles.label.copyWith(color: fg),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+            else
+              Text(label, style: AppTextStyles.label.copyWith(color: fg)),
           ],
         ),
       ),
