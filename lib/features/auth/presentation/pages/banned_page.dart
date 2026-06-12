@@ -100,9 +100,12 @@ class BannedPage extends ConsumerWidget {
               ],
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () {
-                  ref.read(authProvider.notifier).signOut();
-                  context.go('/login');
+                // Await sign-out before navigating: go('/login') fired before
+                // the auth state flips to Unauthenticated would be bounced back
+                // to /banned by the router guard — that was the "tap twice" bug.
+                onPressed: () async {
+                  await ref.read(authProvider.notifier).signOut();
+                  if (context.mounted) context.go('/login');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.error,
