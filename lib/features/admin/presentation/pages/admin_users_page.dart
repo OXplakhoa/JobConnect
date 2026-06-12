@@ -14,7 +14,6 @@ class AdminUsersPage extends ConsumerWidget {
     final usersAsync = ref.watch(adminUsersProvider);
     final filter = ref.watch(adminUserFilterProvider);
 
-
     const filters = ['all', 'seeker', 'recruiter', 'banned'];
     const filterLabels = {
       'all': 'Tất cả',
@@ -37,10 +36,14 @@ class AdminUsersPage extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
-              onChanged: (v) => ref.read(adminUserSearchProvider.notifier).setQuery(v),
+              onChanged: (v) =>
+                  ref.read(adminUserSearchProvider.notifier).setQuery(v),
               decoration: InputDecoration(
                 hintText: 'Tìm theo tên, email...',
-                prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: AppColors.textSecondary,
+                ),
                 filled: true,
                 fillColor: AppColors.surface,
                 border: OutlineInputBorder(
@@ -72,7 +75,9 @@ class AdminUsersPage extends ConsumerWidget {
                     backgroundColor: AppColors.surface,
                     selectedColor: AppColors.primary.withValues(alpha: 0.2),
                     labelStyle: TextStyle(
-                      color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
                     ),
                   ),
                 );
@@ -104,7 +109,10 @@ class AdminUsersPage extends ConsumerWidget {
                     );
                   }
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: users.length,
                     itemBuilder: (context, index) {

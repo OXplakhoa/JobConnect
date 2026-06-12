@@ -45,7 +45,10 @@ class AdminUserDetailPage extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
-          child: Text('Lỗi: $e', style: const TextStyle(color: AppColors.error)),
+          child: Text(
+            'Lỗi: $e',
+            style: const TextStyle(color: AppColors.error),
+          ),
         ),
       ),
     );
@@ -57,15 +60,23 @@ class _UserDetailContent extends ConsumerWidget {
 
   final Map<String, dynamic> user;
 
-  Future<void> _showBanDialog(BuildContext context, WidgetRef ref, {bool permanent = false}) async {
+  Future<void> _showBanDialog(
+    BuildContext context,
+    WidgetRef ref, {
+    bool permanent = false,
+  }) async {
     if (permanent) {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
           backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Text('Xóa tài khoản?'),
-          content: Text('Tài khoản ${user['full_name'] ?? 'này'} sẽ bị khóa vĩnh viễn (xóa mềm). Bạn có chắc?'),
+          content: Text(
+            'Tài khoản ${user['full_name'] ?? 'này'} sẽ bị khóa vĩnh viễn (xóa mềm). Bạn có chắc?',
+          ),
           // §6: destructive choice = red text; the safe action (Hủy) is the
           // bolder default — never a filled red button.
           actions: [
@@ -93,7 +104,9 @@ class _UserDetailContent extends ConsumerWidget {
         context: context,
         builder: (_) => AlertDialog(
           backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Text('Tạm khóa'),
           content: const Column(
             mainAxisSize: MainAxisSize.min,
@@ -158,9 +171,9 @@ class _UserDetailContent extends ConsumerWidget {
     await repo.sendWarning(user['id'] as String, message);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã gửi cảnh cáo')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã gửi cảnh cáo')));
     }
   }
 
@@ -170,7 +183,8 @@ class _UserDetailContent extends ConsumerWidget {
     final bannedUntil = user['banned_until'] != null
         ? DateTime.tryParse(user['banned_until'].toString())
         : null;
-    final isBanned = bannedUntil != null && DateTime.now().isBefore(bannedUntil);
+    final isBanned =
+        bannedUntil != null && DateTime.now().isBefore(bannedUntil);
     final isPermanent = isBanned && bannedUntil.year >= 2099;
 
     final createdAt = user['created_at'] != null
@@ -190,7 +204,11 @@ class _UserDetailContent extends ConsumerWidget {
                   : null,
               backgroundColor: AppColors.surfaceVariant,
               child: user['avatar_url'] == null
-                  ? const Icon(Icons.person, size: 48, color: AppColors.textSecondary)
+                  ? const Icon(
+                      Icons.person,
+                      size: 48,
+                      color: AppColors.textSecondary,
+                    )
                   : null,
             ),
           ),
@@ -204,7 +222,9 @@ class _UserDetailContent extends ConsumerWidget {
           Text(
             user['email'] ?? '',
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 16),
           Wrap(
@@ -218,13 +238,19 @@ class _UserDetailContent extends ConsumerWidget {
                   _ => 'Người kiếm việc',
                 }),
                 backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                labelStyle: const TextStyle(color: AppColors.primary, fontSize: 12),
+                labelStyle: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 12,
+                ),
               ),
               if (isBanned)
                 Chip(
                   label: Text(isPermanent ? 'Đã xóa' : 'Tạm khóa'),
                   backgroundColor: AppColors.error.withValues(alpha: 0.15),
-                  labelStyle: const TextStyle(color: AppColors.error, fontSize: 12),
+                  labelStyle: const TextStyle(
+                    color: AppColors.error,
+                    fontSize: 12,
+                  ),
                 ),
             ],
           ),
@@ -233,7 +259,9 @@ class _UserDetailContent extends ConsumerWidget {
             Text(
               'Tham gia: ${DateFormat('dd/MM/yyyy').format(createdAt)}',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textTertiary,
+              ),
             ),
           ],
           const SizedBox(height: 32),
@@ -281,9 +309,9 @@ class _UserDetailContent extends ConsumerWidget {
 
               result.fold(
                 (failure) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(failure.message)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(failure.message)));
                 },
                 (_) {
                   ref.invalidate(adminUsersProvider);
@@ -349,8 +377,7 @@ class _ActionButton extends StatelessWidget {
     final fg = destructive
         ? AppColors.errorFor(brightness)
         : AppColors.inkFor(brightness);
-    final iconColor =
-        destructive ? fg : AppColors.gray600For(brightness);
+    final iconColor = destructive ? fg : AppColors.gray600For(brightness);
 
     return Material(
       color: AppColors.surfaceFor(brightness),
@@ -427,11 +454,20 @@ class _RoleChangeDialogState extends State<_RoleChangeDialog> {
         children: _roles.map((r) {
           final isSelected = _selected == r.$1;
           return ListTile(
-            leading: Icon(r.$3, color: isSelected ? AppColors.primary : AppColors.textSecondary),
+            leading: Icon(
+              r.$3,
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            ),
             title: Text(r.$2),
-            trailing: isSelected ? const Icon(Icons.check, color: AppColors.primary) : null,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            tileColor: isSelected ? AppColors.primary.withValues(alpha: 0.1) : null,
+            trailing: isSelected
+                ? const Icon(Icons.check, color: AppColors.primary)
+                : null,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            tileColor: isSelected
+                ? AppColors.primary.withValues(alpha: 0.1)
+                : null,
             onTap: () => setState(() => _selected = r.$1),
           );
         }).toList(),

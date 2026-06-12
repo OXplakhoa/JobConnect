@@ -11,10 +11,7 @@ import '../../../recruiter/presentation/providers/job_categories_provider.dart';
 import '../../domain/entities/job_filter.dart';
 
 class FilterBottomSheet extends ConsumerStatefulWidget {
-  const FilterBottomSheet({
-    super.key,
-    required this.initialFilter,
-  });
+  const FilterBottomSheet({super.key, required this.initialFilter});
 
   final JobFilter initialFilter;
 
@@ -67,7 +64,10 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                TextButton(onPressed: _clearAll, child: const Text('Xóa tất cả')),
+                TextButton(
+                  onPressed: _clearAll,
+                  child: const Text('Xóa tất cả'),
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.space4),
@@ -129,10 +129,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
               },
             ),
             const SizedBox(height: AppSpacing.space5),
-            PremiumButton(
-              label: 'Áp dụng bộ lọc',
-              onPressed: _applyFilters,
-            ),
+            PremiumButton(label: 'Áp dụng bộ lọc', onPressed: _applyFilters),
           ],
         ),
       ),
@@ -174,7 +171,9 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
       if (_selectedSalaryRange?.label == label) {
         _selectedSalaryRange = null;
       } else {
-        _selectedSalaryRange = kSalaryRanges.firstWhere((r) => r.label == label);
+        _selectedSalaryRange = kSalaryRanges.firstWhere(
+          (r) => r.label == label,
+        );
       }
     });
   }
@@ -241,15 +240,29 @@ class _MultiSelectChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+
     return Wrap(
       spacing: AppSpacing.space2,
       runSpacing: AppSpacing.space2,
       children: options.map((option) {
         final isSelected = selectedValues.contains(option.value);
         return FilterChip(
-          label: Text(option.label),
+          label: Text(
+            option.label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : onSurfaceColor,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
           selected: isSelected,
           onSelected: (_) => onToggle(option.value),
+
+          // them thuoc tinh mau sac
+          selectedColor: primaryColor,
+          checkmarkColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
         );
       }).toList(),
     );

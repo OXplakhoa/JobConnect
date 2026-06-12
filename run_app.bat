@@ -1,0 +1,3 @@
+@echo off
+echo Đang khoi dong JobConnect voi cac API keys...
+flutter run --dart-define=SUPABASE_URL="https://bbmpkrjvodbskjvugmdp.supabase.co" --dart-define=SUPABASE_ANON_KEY="sb_publishable_aONKKwQdH1UNxzVHuJrtOQ_JgprHkv7" --dart-define=GEMINI_KEY="AIzaSyBV98Ryt3Cra8WvZKobZnInpn7rTiAuGpg"
