@@ -41,7 +41,7 @@ class AiInsightPlaceholderCard extends ConsumerWidget {
                 const Icon(Icons.auto_awesome, size: 16, color: AppColors.accent),
                 const SizedBox(width: AppSpacing.space2),
                 Text(
-                  'AI Match sắp mở',
+                  'AI Match',
                   style: AppTextStyles.sectionTitle.copyWith(
                     color: AppColors.inkFor(brightness),
                   ),
@@ -50,7 +50,7 @@ class AiInsightPlaceholderCard extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.space2),
             Text(
-              'Hiện có $jobCount cơ hội đang chờ bạn. Ở Phase 6, JobConnect sẽ giải thích vì sao từng job phù hợp và gợi ý kỹ năng còn thiếu.',
+              'Hiện có $jobCount cơ hội đang chờ bạn. JobConnect phân tích hồ sơ để gợi ý những việc làm phù hợp nhất và kỹ năng bạn nên bổ sung. Mở tab AI Match để xem điểm phù hợp cho từng tin.',
               style: AppTextStyles.body.copyWith(
                 color: AppColors.gray600For(brightness),
               ),
