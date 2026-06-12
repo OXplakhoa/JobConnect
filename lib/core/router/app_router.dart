@@ -405,6 +405,18 @@ GoRouter appRouter(Ref ref) {
           ),
         ],
       ),
+      // Root-level chat route. Opening a conversation from a root-navigator page
+      // (e.g. the applicant detail screen) must NOT push the shell-nested
+      // /recruiter/conversations/:id route — re-mounting the StatefulShellRoute
+      // duplicates its branch navigator GlobalKeys and crashes with a red
+      // "Multiple widgets used the same GlobalKey" screen. This route renders
+      // ChatPage directly on the root navigator instead.
+      GoRoute(
+        path: '/chat/:conversationId',
+        builder: (context, state) => ChatPage(
+          conversationId: state.pathParameters['conversationId']!,
+        ),
+      ),
     ],
   );
 }

@@ -8,7 +8,12 @@ class GetOrCreateConversationUseCase {
 
   final ChatRepository _repository;
 
-  static const _allowedStatuses = ['pending', 'reviewing', 'interview'];
+  static const _allowedStatuses = [
+    'pending',
+    'reviewing',
+    'interview',
+    'accepted',
+  ];
 
   Future<Either<Failure, Conversation>> call({
     required String seekerId,

@@ -242,7 +242,7 @@ class _ApplicantDetailPageState extends ConsumerState<ApplicantDetailPage> {
                                 SnackBar(content: Text(failure.message)),
                               ),
                               (conversation) => context.push(
-                                '/recruiter/conversations/${conversation.id}',
+                                '/chat/${conversation.id}',
                                 extra: conversation,
                               ),
                             );
