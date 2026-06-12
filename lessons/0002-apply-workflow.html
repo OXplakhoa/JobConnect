@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 2 — Workflow Apply: từ nút bấm đến Supabase</title>
+<style>
+  :root {
+    --ink: #111113; --gray: #52525b; --light: #f4f4f5;
+    --accent: #f97316; --surface: #fff; --hairline: #e4e4e7;
+    --success: #059669; --code-bg: #fafafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system,'Segoe UI',sans-serif; font-size:16px; line-height:1.7; color:var(--ink); background:#fafafa; padding:2rem 1rem; }
+  .page { max-width:720px; margin:0 auto; }
+  h1 { font-size:1.75rem; font-weight:700; margin-bottom:0.25rem; }
+  .subtitle { color:var(--gray); font-size:0.95rem; margin-bottom:2.5rem; }
+  h2 { font-size:1.1rem; font-weight:700; margin:2rem 0 0.75rem; }
+  p { margin-bottom:1rem; }
+  .tag { display:inline-block; background:#fff4ea; color:var(--accent); font-size:0.75rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; margin-bottom:0.5rem; }
+  code { background:var(--code-bg); border:1px solid var(--hairline); border-radius:4px; padding:0.1em 0.4em; font-size:0.85em; font-family:'SF Mono','Fira Code',monospace; color:#c2410c; }
+  pre { background:var(--code-bg); border:1px solid var(--hairline); border-radius:8px; padding:1rem 1.25rem; margin:1rem 0; overflow-x:auto; font-size:0.85rem; line-height:1.6; }
+  pre code { background:none; border:none; padding:0; color:var(--ink); }
+  .card { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:1.25rem 1.5rem; margin:1rem 0; }
+  .card.accent-left { border-left:3px solid var(--accent); }
+  .card.success-left { border-left:3px solid var(--success); }
+  .tip { background:#fff4ea; border:1px solid #fed7aa; border-radius:8px; padding:0.75rem 1rem; margin:1rem 0; font-size:0.9rem; }
+  .tip strong { color:var(--accent); }
+
+  /* Flowchart */
+  .flow { margin: 1.5rem 0; }
+  .flow-step {
+    display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 0.5rem;
+  }
+  .step-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-body { flex: 1; padding-top: 0.2rem; }
+  .step-layer { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray); }
+  .step-desc { font-size: 0.95rem; }
+  .step-file { font-size: 0.8rem; color: var(--gray); font-family: 'SF Mono','Fira Code',monospace; }
+  .flow-connector { margin-left: 14px; width: 1px; height: 16px; background: var(--hairline); margin-bottom: 0.5rem; }
+
+  /* Quiz */
+  .quiz { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:1.5rem; margin:2rem 0; }
+  .quiz h2 { color:var(--accent); font-size:0.95rem; margin:0 0 1rem; }
+  .quiz-q { font-weight:600; margin-bottom:0.75rem; }
+  .option { display:block; width:100%; text-align:left; background:var(--light); border:1px solid var(--hairline); border-radius:8px; padding:0.7rem 1rem; margin:0.4rem 0; cursor:pointer; font-size:0.95rem; transition:background 0.15s,border-color 0.15s; }
+  .option:hover { background:#fff4ea; border-color:var(--accent); }
+  .option.correct { background:#d1fae5; border-color:var(--success); }
+  .option.wrong { background:#fee2e2; border-color:#dc2626; }
+  .feedback { margin-top:0.75rem; font-size:0.9rem; display:none; padding:0.6rem 1rem; border-radius:8px; }
+  .feedback.show { display:block; }
+  .feedback.ok { background:#d1fae5; color:#065f46; }
+  .feedback.no { background:#fee2e2; color:#7f1d1d; }
+
+  footer { margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--hairline); font-size:0.85rem; color:var(--gray); }
+  footer a { color:var(--accent); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <span class="tag">Bài 2 / 5</span>
+  <h1>Workflow Apply: từ nút bấm đến Supabase</h1>
+  <p class="subtitle">Trace toàn bộ luồng Seeker ứng tuyển vào một Job Post — 5 tầng, 1 luồng</p>
+
+  <h2>Toàn cảnh luồng Apply</h2>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-layer">Presentation — Page</div>
+        <div class="step-desc">Seeker mở <strong>JobDetailPage</strong> → bấm "Ứng tuyển" → navigate đến <strong>ApplyPage</strong></div>
+        <div class="step-file">lib/features/jobs/presentation/pages/job_detail_page.dart<br>lib/features/application/presentation/pages/apply_page.dart</div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-layer">Presentation — Provider</div>
+        <div class="step-desc">ApplyPage gọi <code>ref.read(applicationProvider.notifier).apply(...)</code></div>
+        <div class="step-file">lib/features/application/presentation/providers/application_provider.dart</div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-layer">Domain — UseCase</div>
+        <div class="step-desc">Provider gọi <strong>ApplyJobUseCase</strong> (có UseCase vì apply = nhiều bước: validate resume, insert application)</div>
+        <div class="step-file">lib/features/application/domain/usecases/apply_job_usecase.dart</div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-layer">Domain — Repository (abstract)</div>
+        <div class="step-desc">UseCase gọi <code>ApplicationRepository.applyToJob()</code> — chỉ biết interface, không biết Supabase</div>
+        <div class="step-file">lib/features/application/domain/repositories/application_repository.dart</div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-layer">Data — Repository impl + Datasource</div>
+        <div class="step-desc">Repository impl gọi <code>ApplicationDatasource.applyToJob()</code> → INSERT vào bảng <code>applications</code> với <code>status = 'pending'</code></div>
+        <div class="step-file">lib/features/application/data/datasources/application_datasource.dart</div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+
+    <div class="flow-step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-layer">Backend — Supabase</div>
+        <div class="step-desc">Supabase kiểm tra RLS (Seeker chỉ insert được Application của chính mình) → ghi vào PostgreSQL</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STATUS FLOW ────────────────────────────────────────────── -->
+  <h2>Vòng đời Application (status flow)</h2>
+  <div class="card accent-left">
+    <code>pending</code>
+    &nbsp;→&nbsp; <strong>Shortlist</strong> (<code>reviewing</code>)
+    &nbsp;→&nbsp; <strong>Invite</strong> (<code>interview</code>)
+    &nbsp;→&nbsp; <strong>Hire</strong> (<code>accepted</code>) / <strong>Reject</strong> (<code>rejected</code>)
+    <br><br>
+    <code>pending</code> &nbsp;→&nbsp; <strong>Withdraw</strong> (<code>withdrawn</code>) — chỉ Seeker, chỉ khi còn pending
+  </div>
+  <p>Recruiter dùng <strong>ApplicantsPage</strong> → bấm action → gọi Supabase RPC <code>update_application_with_note</code> hoặc <code>update_application_with_interview</code> (atomic — update status + insert note/schedule trong 1 transaction).</p>
+
+  <!-- ─── WITHDRAW ──────────────────────────────────────────────── -->
+  <h2>Tại sao Withdraw chỉ được khi pending?</h2>
+  <div class="card">
+    <p>Datasource kiểm tra bằng <code>.eq('status', 'pending')</code> trong WHERE clause:</p>
+    <pre><code>await _supabase
+  .from('applications')
+  .update({'status': 'withdrawn'})
+  .eq('seeker_id', seekerId)
+  .eq('id', applicationId)
+  .eq('status', 'pending')   // ← nếu không còn pending → 0 rows → Left(Failure)
+  .select();</code></pre>
+    <p>Nếu result rỗng → trả <code>Left(DatabaseFailure)</code>. UI hiện thông báo lỗi.</p>
+  </div>
+
+  <!-- ─── QUIZ ────────────────────────────────────────────────────── -->
+  <div class="quiz">
+    <h2>🎯 Kiểm tra nhanh</h2>
+
+    <p class="quiz-q">1. Khi Seeker bấm "Ứng tuyển", tầng nào được gọi đầu tiên?</p>
+    <button class="option" onclick="check(this,'wrong')">ApplicationDatasource — vì cần INSERT vào DB ngay</button>
+    <button class="option" onclick="check(this,'wrong')">ApplicationRepository — vì nó quản lý data</button>
+    <button class="option" onclick="check(this,'correct')">Provider (Notifier) — Presentation layer xử lý event từ UI trước</button>
+    <div class="feedback" id="f1"></div>
+
+    <br>
+    <p class="quiz-q">2. Recruiter chuyển Application từ pending sang reviewing — đó là action gì?</p>
+    <button class="option" onclick="check(this,'wrong')">Invite</button>
+    <button class="option" onclick="check(this,'correct')">Shortlist</button>
+    <button class="option" onclick="check(this,'wrong')">Hire</button>
+    <div class="feedback" id="f2"></div>
+
+    <br>
+    <p class="quiz-q">3. Tại sao Invite dùng Supabase RPC thay vì .update() bình thường?</p>
+    <button class="option" onclick="check(this,'correct')">Vì cần atomic transaction — update status + insert InterviewSchedule cùng lúc</button>
+    <button class="option" onclick="check(this,'wrong')">Vì .update() không hỗ trợ thay đổi status</button>
+    <button class="option" onclick="check(this,'wrong')">Vì RPC nhanh hơn .update()</button>
+    <div class="feedback" id="f3"></div>
+  </div>
+
+  <div class="card success-left">
+    <strong>Bài tiếp theo:</strong>
+    <a href="0003-ai-suggestion.html">Bài 3 — AI Suggestion: Embedding, Match Score, và Skill Gap</a><br>
+    <span style="color:var(--gray);font-size:0.9rem">Giải thích tính năng AI nổi bật nhất của project</span>
+  </div>
+
+  <footer>
+    <p>← <a href="0001-clean-architecture.html">Bài 1: Clean Architecture</a><br>
+    Hỏi thêm nếu chưa rõ bước nào trong flow — gõ vào chat với agent.</p>
+  </footer>
+
+</div>
+<script>
+  let answered = {};
+  function check(btn, result) {
+    const btns = btn.parentElement.querySelectorAll('.option');
+    const feedbackEl = btn.parentElement.querySelector('.feedback');
+    if (answered[feedbackEl.id]) return;
+    answered[feedbackEl.id] = true;
+    btn.classList.add(result);
+    feedbackEl.classList.add('show');
+    if (result === 'correct') {
+      feedbackEl.classList.add('ok');
+      feedbackEl.textContent = '✓ Đúng rồi!';
+    } else {
+      feedbackEl.classList.add('no');
+      btns.forEach(b => { if (b.onclick.toString().includes("'correct'")) b.classList.add('correct'); });
+      feedbackEl.textContent = '✗ Chưa đúng — đáp án đúng đã được highlight xanh.';
+    }
+  }
+</script>
+</body>
+</html>

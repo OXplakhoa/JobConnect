@@ -33,6 +33,7 @@ class RecruiterApplication {
 
   bool get canShortlist => status == 'pending';
   bool get canInvite => status == 'reviewing';
+  bool get canHire => status == 'interview';
   bool get canReject =>
       status == 'pending' || status == 'reviewing' || status == 'interview';
 }

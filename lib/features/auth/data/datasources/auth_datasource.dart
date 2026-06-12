@@ -52,7 +52,7 @@ class AuthDatasourceImpl implements AuthDatasource {
   Future<void> signInWithGoogle() async {
     await _supabase.auth.signInWithOAuth(
       OAuthProvider.google,
-      redirectTo: 'com.jobconnect.job_connect://login-callback',
+      redirectTo: 'jobconnect://login-callback',
     );
   }
 

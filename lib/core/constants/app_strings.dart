@@ -342,6 +342,7 @@ class AppStrings {
   static const noteSaved = 'Đã lưu ghi chú';
   static const shortlist = 'Shortlist';
   static const invite = 'Invite';
+  static const hire = 'Tuyển';
   static const reject = 'Reject';
   static const noApplicants = 'Chưa có ứng viên nào cho Job Post này';
   static const viewApplicants = 'Xem ứng viên';

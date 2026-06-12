@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 1 — Clean Architecture trong JobConnect</title>
+<style>
+  :root {
+    --ink: #111113;
+    --gray: #52525b;
+    --light: #f4f4f5;
+    --accent: #f97316;
+    --surface: #ffffff;
+    --hairline: #e4e4e7;
+    --success: #059669;
+    --code-bg: #fafafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: #fafafa;
+    padding: 2rem 1rem;
+  }
+  .page { max-width: 720px; margin: 0 auto; }
+
+  h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .subtitle { color: var(--gray); font-size: 0.95rem; margin-bottom: 2.5rem; }
+  h2 { font-size: 1.1rem; font-weight: 700; margin: 2rem 0 0.75rem; color: var(--ink); }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.5rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.05em; }
+  p { margin-bottom: 1rem; color: var(--ink); }
+
+  .tag {
+    display: inline-block;
+    background: #fff4ea;
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    margin-bottom: 0.5rem;
+  }
+
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.25rem 0;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+  .diagram .arrow { color: var(--accent); font-weight: bold; }
+  .diagram .layer { font-weight: 700; }
+  .diagram .file { color: var(--gray); }
+
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    font-size: 0.85em;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: #c2410c;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  pre code { background: none; border: none; padding: 0; color: var(--ink); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .card.accent-left { border-left: 3px solid var(--accent); }
+  .card.success-left { border-left: 3px solid var(--success); }
+
+  .quiz {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .quiz h3 { color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 0.9rem; margin-bottom: 1rem; }
+  .quiz-q { font-weight: 600; margin-bottom: 0.75rem; }
+  .option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--light);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin: 0.4rem 0;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .option:hover { background: #fff4ea; border-color: var(--accent); }
+  .option.correct { background: #d1fae5; border-color: var(--success); }
+  .option.wrong { background: #fee2e2; border-color: #dc2626; }
+  .feedback { margin-top: 0.75rem; font-size: 0.9rem; display: none; padding: 0.6rem 1rem; border-radius: 8px; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #d1fae5; color: #065f46; }
+  .feedback.no { background: #fee2e2; color: #7f1d1d; }
+
+  .tip {
+    background: #fff4ea;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .tip strong { color: var(--accent); }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--hairline);
+    font-size: 0.85rem;
+    color: var(--gray);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <span class="tag">Bài 1 / 5</span>
+  <h1>Clean Architecture trong JobConnect</h1>
+  <p class="subtitle">Hiểu cấu trúc 3 tầng để giải thích cho cô bất kỳ chức năng nào</p>
+
+  <!-- ─── WHY ─────────────────────────────────────────────────── -->
+  <h2>Tại sao Clean Architecture?</h2>
+  <p>
+    Cô hỏi: <em>"Em tổ chức code thế nào?"</em> — đây là câu bạn phải trả lời được mà không nhìn màn hình.
+    Clean Architecture chia code thành 3 tầng, mỗi tầng chỉ biết về tầng bên trong nó.
+  </p>
+
+  <div class="diagram">
+<span class="layer">Presentation</span>  <span class="arrow">→</span>  <span class="layer">Domain</span>  <span class="arrow">→</span>  <span class="layer">Data</span>
+─────────────      ────────────────      ──────────────
+Widget              Entity               Datasource
+Provider/Notifier   UseCase              Repository (impl)
+                    Repository (abstract)
+                    Failure
+
+<span class="file">features/xxx/        features/xxx/         features/xxx/
+presentation/        domain/               data/
+  pages/               entities/             datasources/
+  widgets/             usecases/             models/
+  providers/           repositories/         repositories/</span>
+  </div>
+
+  <!-- ─── RULE ─────────────────────────────────────────────────── -->
+  <h2>Quy tắc phụ thuộc</h2>
+  <div class="card accent-left">
+    <strong>Presentation</strong> gọi <strong>Domain</strong> — OK<br>
+    <strong>Domain</strong> gọi <strong>Data</strong> — <span style="color:#dc2626">KHÔNG BAO GIỜ</span><br>
+    <strong>Domain</strong> không biết Supabase tồn tại<br>
+    <strong>Data</strong> không import Flutter Widget
+  </div>
+  <p>
+    Kết quả: nếu mai mốt đổi Supabase sang Firebase, chỉ cần viết lại
+    <code>XxxRepositoryImpl</code> và <code>XxxDatasource</code> — không đụng đến business logic hay UI.
+  </p>
+
+  <!-- ─── LAYER DEEP DIVE ────────────────────────────────────────── -->
+  <h2>Chi tiết từng tầng</h2>
+
+  <h3>1. Data Layer — "Nói chuyện với Supabase"</h3>
+  <div class="card">
+    <p><strong>Datasource</strong> (<code>xxx_datasource.dart</code>): class duy nhất được gọi Supabase trực tiếp.</p>
+    <pre><code>// Ví dụ: application_datasource.dart
+Future&lt;Either&lt;Failure, void&gt;&gt; applyToJob({...}) async {
+  try {
+    await _supabase.from('applications').insert({...});
+    return const Right(null);
+  } on PostgrestException catch (e) {
+    return Left(ApplicationErrorMapper.fromPostgrest(e));
+  }
+}</code></pre>
+    <p><strong>Model</strong> (<code>xxx_model.dart</code>): Freezed class biết JSON. Có <code>fromJson</code>/<code>toJson</code>.</p>
+    <p><strong>Repository impl</strong>: nhận Datasource, trả <code>Either&lt;Failure, T&gt;</code> lên tầng Domain.</p>
+  </div>
+
+  <h3>2. Domain Layer — "Business logic thuần Dart"</h3>
+  <div class="card">
+    <p><strong>Entity</strong>: pure Dart class, không có annotation JSON, không biết Supabase.</p>
+    <p><strong>Repository (abstract)</strong>: interface khai báo contract — ví dụ <code>applyToJob()</code>. Domain gọi interface này, không biết impl.</p>
+    <p><strong>UseCase</strong>: 1 class = 1 hành động. Ví dụ <code>ApplyJobUseCase</code> có method <code>call()</code>.</p>
+    <div class="tip"><strong>Quy tắc UseCase:</strong> bắt buộc khi có nhiều bước / cross-cutting concerns. Được bỏ qua khi là CRUD đơn giản — provider gọi repository trực tiếp.</div>
+  </div>
+
+  <h3>3. Presentation Layer — "UI + State"</h3>
+  <div class="card">
+    <p><strong>Provider</strong>: <code>@riverpod</code> annotation, expose state cho Widget. Luôn <code>ref.watch(authProvider)</code> để auto-rebuild khi login/logout.</p>
+    <p><strong>Page</strong>: Widget full-screen, là route destination.</p>
+    <p><strong>Widget/Card</strong>: component nhỏ hơn, tái dụng trong nhiều page.</p>
+  </div>
+
+  <!-- ─── EITHER ─────────────────────────────────────────────────── -->
+  <h2>Either&lt;Failure, T&gt; — không throw exception</h2>
+  <p>Repository không bao giờ throw. Thay vào đó trả về:</p>
+  <pre><code>Right(data)    // thành công
+Left(failure)  // lỗi — NetworkFailure, DatabaseFailure, AuthFailure...</code></pre>
+  <p>UI dùng <code>.fold()</code>:</p>
+  <pre><code>result.fold(
+  (failure) =&gt; showError(failure.message),
+  (data)    =&gt; showData(data),
+);</code></pre>
+  <div class="tip"><strong>Tại sao không throw?</strong> Exception có thể bị miss, stack trace rất dài, khó test. <code>Either</code> buộc caller phải handle cả hai case — compiler enforce.</div>
+
+  <!-- ─── QUIZ ────────────────────────────────────────────────────── -->
+  <div class="quiz">
+    <h3>🎯 Kiểm tra nhanh</h3>
+
+    <p class="quiz-q">1. Widget cần lấy danh sách Job Posts — nó nên gọi gì?</p>
+    <button class="option" onclick="check(this,'wrong')">Gọi Supabase.instance.client.from('job_posts').select() trực tiếp</button>
+    <button class="option" onclick="check(this,'correct')">ref.watch(jobListProvider) — Provider sẽ gọi UseCase/Repository</button>
+    <button class="option" onclick="check(this,'wrong')">Gọi JobDatasource trực tiếp trong Widget</button>
+    <div class="feedback" id="f1"></div>
+
+    <br>
+    <p class="quiz-q">2. Datasource nhận PostgrestException. Nó nên làm gì?</p>
+    <button class="option" onclick="check(this,'wrong')">rethrow lên Provider để handle</button>
+    <button class="option" onclick="check(this,'correct')">return Left(DatabaseFailure(e.message))</button>
+    <button class="option" onclick="check(this,'wrong')">print lỗi rồi return Right([])</button>
+    <div class="feedback" id="f2"></div>
+
+    <br>
+    <p class="quiz-q">3. Cô hỏi: "Entity khác Model ở điểm nào?" — trả lời đúng nhất là?</p>
+    <button class="option" onclick="check(this,'wrong')">Model có thêm state management, Entity thì không</button>
+    <button class="option" onclick="check(this,'correct')">Entity là pure Dart (domain), Model có fromJson/toJson (data layer)</button>
+    <button class="option" onclick="check(this,'wrong')">Không khác nhau, chỉ là đặt tên khác nhau</button>
+    <div class="feedback" id="f3"></div>
+  </div>
+
+  <!-- ─── NEXT ────────────────────────────────────────────────────── -->
+  <div class="card success-left">
+    <strong>Bài tiếp theo:</strong>
+    <a href="0002-apply-workflow.html">Bài 2 — Workflow Apply: từ nút bấm đến Supabase</a><br>
+    <span style="color:var(--gray);font-size:0.9rem">Trace toàn bộ luồng Apply một Job Post qua 5 tầng code</span>
+  </div>
+
+  <footer>
+    <p>Hỏi thêm bất cứ điều gì chưa rõ — gõ vào chat với agent.<br>
+    Source: <a href="../lib/features/application/data/datasources/application_datasource.dart">application_datasource.dart</a> ·
+    <a href="../lib/core/errors/failure.dart">failure.dart</a> ·
+    <a href="../CLAUDE.md">CLAUDE.md</a></p>
+  </footer>
+
+</div>
+<script>
+  let answered = {};
+  function check(btn, result) {
+    const btns = btn.parentElement.querySelectorAll('.option');
+    const idx = [...btns].indexOf(btn);
+    const feedbackEl = btn.parentElement.querySelector('.feedback');
+    if (answered[feedbackEl.id]) return;
+    answered[feedbackEl.id] = true;
+
+    btn.classList.add(result);
+    feedbackEl.classList.add('show');
+    if (result === 'correct') {
+      feedbackEl.classList.add('ok');
+      feedbackEl.textContent = '✓ Đúng rồi!';
+    } else {
+      feedbackEl.classList.add('no');
+      // Highlight correct
+      btns.forEach(b => { if (b.onclick.toString().includes("'correct'")) b.classList.add('correct'); });
+      feedbackEl.textContent = '✗ Chưa đúng — đáp án đúng đã được highlight xanh.';
+    }
+  }
+</script>
+</body>
+</html>

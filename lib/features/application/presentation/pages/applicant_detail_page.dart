@@ -272,6 +272,19 @@ class _ApplicantDetailPageState extends ConsumerState<ApplicantDetailPage> {
                               extra: application.jobId,
                             ),
                     ),
+                  if (application.canHire)
+                    PremiumButton(
+                      label: AppStrings.hire,
+                      expand: false,
+                      onPressed: actionState.isLoading
+                          ? null
+                          : () => _updateStatus(
+                              application.id,
+                              'accepted',
+                              application.jobId,
+                              AppStrings.statusAccepted,
+                            ),
+                    ),
                   if (application.canReject)
                     PremiumButton(
                       label: AppStrings.reject,

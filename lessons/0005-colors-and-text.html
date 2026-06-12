@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 5 — Sửa màu &amp; text ngay trong demo</title>
+<style>
+  :root{--ink:#111113;--gray:#52525b;--light:#f4f4f5;--accent:#f97316;--surface:#fff;--hairline:#e4e4e7;--success:#059669;--code-bg:#fafafa;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.7;color:var(--ink);background:#fafafa;padding:2rem 1rem;}
+  .page{max-width:720px;margin:0 auto;}
+  h1{font-size:1.75rem;font-weight:700;margin-bottom:0.25rem;}
+  .subtitle{color:var(--gray);font-size:0.95rem;margin-bottom:2.5rem;}
+  h2{font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem;}
+  p{margin-bottom:1rem;}
+  .tag{display:inline-block;background:#fff4ea;color:var(--accent);font-size:0.75rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:100px;margin-bottom:0.5rem;}
+  code{background:var(--code-bg);border:1px solid var(--hairline);border-radius:4px;padding:0.1em 0.4em;font-size:0.85em;font-family:'SF Mono','Fira Code',monospace;color:#c2410c;}
+  pre{background:var(--code-bg);border:1px solid var(--hairline);border-radius:8px;padding:1rem 1.25rem;margin:1rem 0;overflow-x:auto;font-size:0.85rem;line-height:1.6;}
+  pre code{background:none;border:none;padding:0;color:var(--ink);}
+  .card{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0;}
+  .card.accent-left{border-left:3px solid var(--accent);}
+  .card.success-left{border-left:3px solid var(--success);}
+  .tip{background:#fff4ea;border:1px solid #fed7aa;border-radius:8px;padding:0.75rem 1rem;margin:1rem 0;font-size:0.9rem;}
+  .tip strong{color:var(--accent);}
+
+  /* Color swatches */
+  .swatch-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0 1rem; }
+  .swatch {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 8px; padding: 0.4rem 0.75rem;
+  }
+  .swatch-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+  .swatch-name { font-size: 0.8rem; font-family:'SF Mono','Fira Code',monospace; }
+  .swatch-hex { font-size: 0.75rem; color: var(--gray); }
+
+  /* Live color preview */
+  .preview-box {
+    background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px;
+    padding: 1.5rem; margin: 1rem 0;
+  }
+  .preview-btn {
+    display: inline-block; padding: 0.6rem 1.25rem; border-radius: 100px;
+    color: #fff; font-weight: 600; font-size: 0.9rem; margin: 0.25rem;
+    cursor: default;
+  }
+
+  /* File path highlight */
+  .filepath {
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px;
+    padding: 0.3rem 0.75rem; font-family:'SF Mono','Fira Code',monospace;
+    font-size: 0.82rem; color: #065f46; display: inline-block; margin: 0.2rem 0;
+  }
+
+  /* Cheatsheet table */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  th { text-align: left; padding: 0.5rem 0.75rem; background: var(--light); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gray); }
+  td { padding: 0.6rem 0.75rem; border-top: 1px solid var(--hairline); vertical-align: top; }
+  td code { font-size: 0.8rem; }
+
+  footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--hairline);font-size:0.85rem;color:var(--gray);}
+  footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <span class="tag">Bài 5 / 5</span>
+  <h1>Sửa màu &amp; text ngay trong demo</h1>
+  <p class="subtitle">Khi cô nói "đổi màu đi xem" hoặc "sửa chữ này đi" — bạn biết làm trong 30 giây</p>
+
+  <!-- ─── COLOR SYSTEM ────────────────────────────────────────────── -->
+  <h2>Tất cả màu nằm trong 1 file</h2>
+  <div class="filepath">lib/core/theme/app_colors.dart</div>
+
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-dot" style="background:#f97316"></div><span class="swatch-name">accent</span><span class="swatch-hex">#F97316</span></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#fafafa;border:1px solid #e4e4e7"></div><span class="swatch-name">canvas</span><span class="swatch-hex">#FAFAFA</span></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#ffffff;border:1px solid #e4e4e7"></div><span class="swatch-name">surface</span><span class="swatch-hex">#FFFFFF</span></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#111113"></div><span class="swatch-name">ink</span><span class="swatch-hex">#111113</span></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#52525b"></div><span class="swatch-name">gray600</span><span class="swatch-hex">#52525B</span></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#059669"></div><span class="swatch-name">success</span><span class="swatch-hex">#059669</span></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#dc2626"></div><span class="swatch-name">error</span><span class="swatch-hex">#DC2626</span></div>
+  </div>
+
+  <div class="preview-box">
+    <p style="color:var(--gray);font-size:0.85rem;margin-bottom:0.75rem">Preview với màu hiện tại:</p>
+    <span class="preview-btn" style="background:#f97316">Ứng tuyển</span>
+    <span class="preview-btn" style="background:#111113">Xem chi tiết</span>
+    <span class="preview-btn" style="background:#059669">Đã duyệt</span>
+    <span class="preview-btn" style="background:#dc2626">Từ chối</span>
+  </div>
+
+  <!-- ─── HOW TO CHANGE ────────────────────────────────────────────── -->
+  <h2>Cách đổi màu chính (accent) — ví dụ sang xanh dương</h2>
+  <pre><code>// lib/core/theme/app_colors.dart — dòng ~14
+static const Color accent = Color(0xFF2563EB);  // ← đổi hex này
+//                                   ^^^^^^^^
+//                                   F97316 = cam (hiện tại)
+//                                   2563EB = xanh dương
+//                                   059669 = xanh lá
+//                                   7C3AED = tím</code></pre>
+  <p>Lưu file → Flutter hot reload (<strong>r</strong> trong terminal hoặc Ctrl+S nếu dùng IDE) → toàn bộ app đổi màu ngay.</p>
+
+  <!-- ─── TEXT ────────────────────────────────────────────────────── -->
+  <h2>Sửa text — 2 cách</h2>
+
+  <div class="card accent-left">
+    <strong>Cách 1 — AppStrings (strings hệ thống)</strong>
+    <p style="margin-top:0.5rem">Strings dùng lại nhiều nơi (tab label, button text chung) nằm trong:</p>
+    <div class="filepath">lib/core/constants/app_strings.dart</div>
+    <pre style="margin-top:0.75rem"><code>class AppStrings {
+  static const home = 'Trang chủ';
+  static const search = 'Tìm kiếm';
+  static const conversations = 'Tin nhắn';
+  // ...
+}</code></pre>
+  </div>
+
+  <div class="card accent-left">
+    <strong>Cách 2 — Inline string trong file màn hình</strong>
+    <p style="margin-top:0.5rem">Text cụ thể của từng screen — tìm bằng VS Code search (Cmd+Shift+F):</p>
+    <pre><code>// Ví dụ: tìm "Ứng tuyển" để sửa nút Apply
+// → mở lib/features/application/presentation/pages/apply_page.dart
+// → tìm dòng Text('Ứng tuyển') rồi sửa</code></pre>
+    <div class="tip"><strong>Mẹo demo:</strong> Cmd+Shift+F → gõ text cần sửa → double-click kết quả → sửa → hot reload.</div>
+  </div>
+
+  <!-- ─── CHEATSHEET ────────────────────────────────────────────────── -->
+  <h2>Cheatsheet: "Cô muốn em sửa…"</h2>
+  <table>
+    <tr><th>Cô muốn sửa</th><th>Mở file</th><th>Làm gì</th></tr>
+    <tr>
+      <td>Màu chính của app</td>
+      <td><code>app_colors.dart</code></td>
+      <td>Đổi <code>accent = Color(0xFFxxxxxx)</code></td>
+    </tr>
+    <tr>
+      <td>Màu nền app</td>
+      <td><code>app_colors.dart</code></td>
+      <td>Đổi <code>canvas = Color(...)</code></td>
+    </tr>
+    <tr>
+      <td>Text trong tab bar</td>
+      <td><code>app_strings.dart</code></td>
+      <td>Đổi constant tương ứng</td>
+    </tr>
+    <tr>
+      <td>Text trên nút Apply</td>
+      <td><code>apply_page.dart</code></td>
+      <td>Cmd+Shift+F tìm "Ứng tuyển", sửa</td>
+    </tr>
+    <tr>
+      <td>Tên app (AppBar title)</td>
+      <td>Tìm <code>"JobConnect"</code> trong project</td>
+      <td>Cmd+Shift+F → thay text</td>
+    </tr>
+    <tr>
+      <td>Font chữ toàn app</td>
+      <td><code>lib/core/theme/app_theme.dart</code></td>
+      <td>Đổi <code>fontFamily</code> trong ThemeData</td>
+    </tr>
+  </table>
+
+  <!-- ─── HOT RELOAD ────────────────────────────────────────────────── -->
+  <h2>Hot reload vs Hot restart</h2>
+  <div class="card">
+    <p><strong>Hot reload (r)</strong> — inject code mới, giữ state. Dùng để xem thay đổi UI ngay lập tức.</p>
+    <p style="margin-bottom:0"><strong>Hot restart (R / Shift+R)</strong> — restart app từ đầu, reset state. Dùng khi thay đổi không hot-reload được (provider, route...).</p>
+  </div>
+  <div class="tip"><strong>Mẹo demo:</strong> Sửa màu/text → nhấn <strong>r</strong> trong terminal → cô thấy thay đổi ngay. Không cần rebuild toàn bộ.</div>
+
+  <!-- ─── DONE ────────────────────────────────────────────────────── -->
+  <div class="card success-left">
+    <p><strong>Đã hoàn thành 5 bài!</strong> Bạn giờ có thể:</p>
+    <ul style="margin-left:1.25rem;margin-top:0.5rem;">
+      <li>Giải thích Clean Architecture 3 tầng</li>
+      <li>Trace workflow Apply từ đầu đến cuối</li>
+      <li>Giải thích AI Suggestion và Match Score</li>
+      <li>Giải thích Riverpod auth flow và routing</li>
+      <li>Sửa màu và text live trong demo</li>
+    </ul>
+    <p style="margin-top:0.75rem">Ôn lại bằng cách làm quiz trong từng bài. Gõ vào chat nếu có câu hỏi khó.</p>
+  </div>
+
+  <footer>
+    <p>← <a href="0004-state-and-nav.html">Bài 4: State &amp; Navigation</a><br>
+    Source: <a href="../lib/core/theme/app_colors.dart">app_colors.dart</a> ·
+    <a href="../lib/core/constants/app_strings.dart">app_strings.dart</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

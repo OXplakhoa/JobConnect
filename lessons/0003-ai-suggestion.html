@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 3 — AI Suggestion: Embedding, Match Score &amp; Skill Gap</title>
+<style>
+  :root {
+    --ink:#111113;--gray:#52525b;--light:#f4f4f5;
+    --accent:#f97316;--surface:#fff;--hairline:#e4e4e7;
+    --success:#059669;--code-bg:#fafafa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.7;color:var(--ink);background:#fafafa;padding:2rem 1rem;}
+  .page{max-width:720px;margin:0 auto;}
+  h1{font-size:1.75rem;font-weight:700;margin-bottom:0.25rem;}
+  .subtitle{color:var(--gray);font-size:0.95rem;margin-bottom:2.5rem;}
+  h2{font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem;}
+  p{margin-bottom:1rem;}
+  .tag{display:inline-block;background:#fff4ea;color:var(--accent);font-size:0.75rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:100px;margin-bottom:0.5rem;}
+  code{background:var(--code-bg);border:1px solid var(--hairline);border-radius:4px;padding:0.1em 0.4em;font-size:0.85em;font-family:'SF Mono','Fira Code',monospace;color:#c2410c;}
+  pre{background:var(--code-bg);border:1px solid var(--hairline);border-radius:8px;padding:1rem 1.25rem;margin:1rem 0;overflow-x:auto;font-size:0.85rem;line-height:1.6;}
+  pre code{background:none;border:none;padding:0;color:var(--ink);}
+  .card{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0;}
+  .card.accent-left{border-left:3px solid var(--accent);}
+  .card.success-left{border-left:3px solid var(--success);}
+  .tip{background:#fff4ea;border:1px solid #fed7aa;border-radius:8px;padding:0.75rem 1rem;margin:1rem 0;font-size:0.9rem;}
+  .tip strong{color:var(--accent);}
+
+  /* Visual diagram */
+  .embed-vis {
+    background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px;
+    padding: 1.5rem; margin: 1.25rem 0; text-align: center;
+  }
+  .vec-box {
+    display: inline-block; background: var(--light); border: 1px solid var(--hairline);
+    border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.8rem;
+    font-family: 'SF Mono','Fira Code',monospace; margin: 0.25rem;
+  }
+  .vec-label { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--gray); }
+  .arrow-down { font-size: 1.2rem; color: var(--accent); margin: 0.5rem 0; display: block; }
+  .score-badge {
+    display: inline-block; background: #fff4ea; color: var(--accent);
+    font-weight: 700; font-size: 1.1rem; padding: 0.4rem 1.2rem; border-radius: 100px;
+    border: 2px solid var(--accent); margin-top: 0.5rem;
+  }
+
+  /* Quiz */
+  .quiz{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:1.5rem;margin:2rem 0;}
+  .quiz h2{color:var(--accent);font-size:0.95rem;margin:0 0 1rem;}
+  .quiz-q{font-weight:600;margin-bottom:0.75rem;}
+  .option{display:block;width:100%;text-align:left;background:var(--light);border:1px solid var(--hairline);border-radius:8px;padding:0.7rem 1rem;margin:0.4rem 0;cursor:pointer;font-size:0.95rem;transition:background 0.15s,border-color 0.15s;}
+  .option:hover{background:#fff4ea;border-color:var(--accent);}
+  .option.correct{background:#d1fae5;border-color:var(--success);}
+  .option.wrong{background:#fee2e2;border-color:#dc2626;}
+  .feedback{margin-top:0.75rem;font-size:0.9rem;display:none;padding:0.6rem 1rem;border-radius:8px;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:#d1fae5;color:#065f46;}
+  .feedback.no{background:#fee2e2;color:#7f1d1d;}
+
+  footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--hairline);font-size:0.85rem;color:var(--gray);}
+  footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <span class="tag">Bài 3 / 5</span>
+  <h1>AI Suggestion: Embedding, Match Score &amp; Skill Gap</h1>
+  <p class="subtitle">Tính năng AI là điểm nhấn của đồ án — cô chắc chắn sẽ hỏi cái này</p>
+
+  <!-- ─── OVERVIEW ───────────────────────────────────────────────── -->
+  <h2>Ý tưởng cốt lõi</h2>
+  <p>
+    JobConnect dùng <strong>Google Gemini <code>text-embedding-004</code></strong> để chuyển text thành vector số.
+    Rồi đo <em>góc</em> giữa hai vector — Profile của Seeker và Job Post.
+    Góc càng nhỏ → hai cái càng "giống nhau" về ngữ nghĩa → Match Score càng cao.
+  </p>
+
+  <!-- ─── VISUAL ─────────────────────────────────────────────────── -->
+  <div class="embed-vis">
+    <div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;">
+      <div>
+        <div class="vec-label">Profile Embedding</div>
+        <div class="vec-box">0.12</div><div class="vec-box">-0.45</div><div class="vec-box">0.78</div>
+        <div class="vec-box">…</div><div class="vec-box">0.03</div>
+        <div style="color:var(--gray);font-size:0.75rem;margin-top:0.3rem">768 chiều</div>
+      </div>
+      <div>
+        <div class="vec-label">Job Embedding</div>
+        <div class="vec-box">0.15</div><div class="vec-box">-0.41</div><div class="vec-box">0.80</div>
+        <div class="vec-box">…</div><div class="vec-box">0.06</div>
+        <div style="color:var(--gray);font-size:0.75rem;margin-top:0.3rem">768 chiều</div>
+      </div>
+    </div>
+    <span class="arrow-down">↓ cosine similarity</span>
+    <pre style="display:inline-block;text-align:left;margin:0.5rem auto;">Match Score = (1 - (profile_vec &lt;=&gt; job_vec)) × 100
+             = 85%</pre>
+    <div class="score-badge">85%</div>
+  </div>
+
+  <!-- ─── FLOW ───────────────────────────────────────────────────── -->
+  <h2>Luồng tạo AI Suggestion</h2>
+
+  <div class="card">
+    <strong>Bước 1 — Tạo Profile Embedding</strong>
+    <p style="margin-top:0.5rem">Khi Seeker update Profile hoặc Skills:</p>
+    <pre><code>// Provider gọi AiEmbeddingNotifier
+await ref.read(aiEmbeddingNotifierProvider.notifier)
+         .rebuildProfileEmbedding();
+
+// → AiSuggestionDatasource.rebuildProfileEmbedding()
+// → Supabase Edge Function "ai" (action: rebuild_profile_embedding)
+// → Gemini API tạo vector 768 chiều từ profile text
+// → Lưu vào bảng profile_embeddings</code></pre>
+  </div>
+
+  <div class="card">
+    <strong>Bước 2 — Tạo Job Embedding</strong>
+    <p style="margin-top:0.5rem">Khi Recruiter publish Job Post mới:</p>
+    <pre><code>// Edge Function "ai" (action: rebuild_job_embedding, jobId: "xxx")
+// → Gemini API tạo vector từ title + description + requirements
+// → Lưu vào bảng job_embeddings</code></pre>
+  </div>
+
+  <div class="card">
+    <strong>Bước 3 — Tính Match Score &amp; Cache</strong>
+    <pre><code>// Edge Function tính:
+SELECT job_id,
+       1 - (job_embedding &lt;=&gt; profile_embedding) AS match_score
+FROM job_embeddings, profile_embeddings
+WHERE profile_id = current_user
+ORDER BY match_score DESC
+LIMIT 20;
+
+// Lưu kết quả vào ai_suggestions với TTL = 24h</code></pre>
+  </div>
+
+  <div class="card">
+    <strong>Bước 4 — Đọc trong app</strong>
+    <pre><code>// aiSuggestionsProvider đọc cache trước
+final suggestions = await getCachedSuggestions();
+// Nếu hết hạn (24h) → gọi rebuildAiSuggestions() để tạo lại</code></pre>
+  </div>
+
+  <!-- ─── SKILL GAP ──────────────────────────────────────────────── -->
+  <h2>Skill Gap — tính realtime khi xem Job Detail</h2>
+  <div class="card accent-left">
+    <p><strong>Skill Gap</strong> = danh sách Required Skills của Job Post mà Seeker chưa có trong User Skills.</p>
+    <p>Tính realtime khi mở JobDetailPage — không lưu vào DB. So sánh 2 danh sách:</p>
+    <pre><code>skillGap = job.requiredSkills
+             .where((s) =&gt; !seeker.userSkills.contains(s))
+             .toList();</code></pre>
+    <p>Hiển thị badge "Thiếu X kỹ năng" để Seeker biết cần học thêm gì.</p>
+  </div>
+
+  <!-- ─── WHY EDGE FUNCTION ──────────────────────────────────────── -->
+  <h2>Tại sao dùng Edge Function thay vì gọi Gemini từ app?</h2>
+  <div class="tip">
+    <strong>3 lý do:</strong><br>
+    1. <strong>Bảo mật API key</strong> — Gemini key không bao giờ nằm trong app (dễ bị decompile). Edge Function chạy server-side.<br>
+    2. <strong>Heavy computation</strong> — tính cosine similarity trên 768 chiều × N jobs nên làm server-side.<br>
+    3. <strong>pgvector</strong> — PostgreSQL extension <code>&lt;=&gt;</code> là cosine distance built-in, cực nhanh.
+  </div>
+
+  <!-- ─── QUIZ ────────────────────────────────────────────────────── -->
+  <div class="quiz">
+    <h2>🎯 Kiểm tra nhanh</h2>
+
+    <p class="quiz-q">1. Match Score 85% có nghĩa là gì chính xác?</p>
+    <button class="option" onclick="check(this,'wrong')">Job Post và Profile giống nhau 85% về từ khóa</button>
+    <button class="option" onclick="check(this,'correct')">Cosine similarity giữa 2 embedding vector = 0.85 — profile và job gần nhau về ngữ nghĩa</button>
+    <button class="option" onclick="check(this,'wrong')">85% required skills của Job Post trùng với User Skills</button>
+    <div class="feedback" id="f1"></div>
+
+    <br>
+    <p class="quiz-q">2. AI Suggestion được lưu cache bao lâu?</p>
+    <button class="option" onclick="check(this,'wrong')">1 giờ</button>
+    <button class="option" onclick="check(this,'correct')">24 giờ (TTL = 24h trong bảng ai_suggestions)</button>
+    <button class="option" onclick="check(this,'wrong')">Không cache — tính lại mỗi lần mở app</button>
+    <div class="feedback" id="f2"></div>
+
+    <br>
+    <p class="quiz-q">3. Skill Gap tính ở đâu?</p>
+    <button class="option" onclick="check(this,'wrong')">Lưu sẵn trong DB, đọc khi cần</button>
+    <button class="option" onclick="check(this,'correct')">Tính realtime ở client khi mở JobDetailPage — so sánh 2 danh sách trong memory</button>
+    <button class="option" onclick="check(this,'wrong')">Edge Function tính và cache riêng</button>
+    <div class="feedback" id="f3"></div>
+  </div>
+
+  <div class="card success-left">
+    <strong>Bài tiếp theo:</strong>
+    <a href="0004-state-and-nav.html">Bài 4 — Riverpod State &amp; Navigation: auth flow và routing</a><br>
+    <span style="color:var(--gray);font-size:0.9rem">Giải thích tại sao app tự redirect đúng role sau khi login</span>
+  </div>
+
+  <footer>
+    <p>← <a href="0002-apply-workflow.html">Bài 2: Apply Workflow</a><br>
+    Source: <a href="../lib/features/ai_suggestion/data/datasources/ai_suggestion_datasource.dart">ai_suggestion_datasource.dart</a> ·
+    <a href="../lib/features/ai_suggestion/presentation/providers/ai_suggestion_provider.dart">ai_suggestion_provider.dart</a></p>
+  </footer>
+
+</div>
+<script>
+  let answered = {};
+  function check(btn, result) {
+    const btns = btn.parentElement.querySelectorAll('.option');
+    const feedbackEl = btn.parentElement.querySelector('.feedback');
+    if (answered[feedbackEl.id]) return;
+    answered[feedbackEl.id] = true;
+    btn.classList.add(result);
+    feedbackEl.classList.add('show');
+    if (result === 'correct') {
+      feedbackEl.classList.add('ok'); feedbackEl.textContent = '✓ Đúng rồi!';
+    } else {
+      feedbackEl.classList.add('no');
+      btns.forEach(b => { if (b.onclick.toString().includes("'correct'")) b.classList.add('correct'); });
+      feedbackEl.textContent = '✗ Chưa đúng — đáp án đúng đã được highlight xanh.';
+    }
+  }
+</script>
+</body>
+</html>

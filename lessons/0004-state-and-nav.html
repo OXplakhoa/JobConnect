@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 4 — Riverpod State &amp; Navigation</title>
+<style>
+  :root{--ink:#111113;--gray:#52525b;--light:#f4f4f5;--accent:#f97316;--surface:#fff;--hairline:#e4e4e7;--success:#059669;--code-bg:#fafafa;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.7;color:var(--ink);background:#fafafa;padding:2rem 1rem;}
+  .page{max-width:720px;margin:0 auto;}
+  h1{font-size:1.75rem;font-weight:700;margin-bottom:0.25rem;}
+  .subtitle{color:var(--gray);font-size:0.95rem;margin-bottom:2.5rem;}
+  h2{font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem;}
+  p{margin-bottom:1rem;}
+  .tag{display:inline-block;background:#fff4ea;color:var(--accent);font-size:0.75rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:100px;margin-bottom:0.5rem;}
+  code{background:var(--code-bg);border:1px solid var(--hairline);border-radius:4px;padding:0.1em 0.4em;font-size:0.85em;font-family:'SF Mono','Fira Code',monospace;color:#c2410c;}
+  pre{background:var(--code-bg);border:1px solid var(--hairline);border-radius:8px;padding:1rem 1.25rem;margin:1rem 0;overflow-x:auto;font-size:0.85rem;line-height:1.6;}
+  pre code{background:none;border:none;padding:0;color:var(--ink);}
+  .card{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0;}
+  .card.accent-left{border-left:3px solid var(--accent);}
+  .card.success-left{border-left:3px solid var(--success);}
+  .tip{background:#fff4ea;border:1px solid #fed7aa;border-radius:8px;padding:0.75rem 1rem;margin:1rem 0;font-size:0.9rem;}
+  .tip strong{color:var(--accent);}
+
+  /* State machine */
+  .state-grid { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1rem 0; }
+  .state-chip {
+    background: var(--surface); border: 1.5px solid var(--hairline); border-radius: 100px;
+    padding: 0.4rem 1rem; font-size: 0.85rem; font-family: 'SF Mono','Fira Code',monospace;
+  }
+  .state-chip.active { background: #fff4ea; border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+  /* Quiz */
+  .quiz{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:1.5rem;margin:2rem 0;}
+  .quiz h2{color:var(--accent);font-size:0.95rem;margin:0 0 1rem;}
+  .quiz-q{font-weight:600;margin-bottom:0.75rem;}
+  .option{display:block;width:100%;text-align:left;background:var(--light);border:1px solid var(--hairline);border-radius:8px;padding:0.7rem 1rem;margin:0.4rem 0;cursor:pointer;font-size:0.95rem;transition:background 0.15s,border-color 0.15s;}
+  .option:hover{background:#fff4ea;border-color:var(--accent);}
+  .option.correct{background:#d1fae5;border-color:var(--success);}
+  .option.wrong{background:#fee2e2;border-color:#dc2626;}
+  .feedback{margin-top:0.75rem;font-size:0.9rem;display:none;padding:0.6rem 1rem;border-radius:8px;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:#d1fae5;color:#065f46;}
+  .feedback.no{background:#fee2e2;color:#7f1d1d;}
+
+  footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--hairline);font-size:0.85rem;color:var(--gray);}
+  footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <span class="tag">Bài 4 / 5</span>
+  <h1>Riverpod State &amp; Navigation</h1>
+  <p class="subtitle">Tại sao app tự redirect đúng sau login — và cách Riverpod quản lý state</p>
+
+  <!-- ─── AUTH STATE ──────────────────────────────────────────── -->
+  <h2>Auth State — 4 trạng thái</h2>
+  <div class="state-grid">
+    <span class="state-chip">AuthInitial</span>
+    <span class="state-chip">AuthUnauthenticated</span>
+    <span class="state-chip active">AuthAuthenticated</span>
+    <span class="state-chip">AuthError</span>
+  </div>
+  <div class="card">
+    <p><code>AuthInitial</code> — app vừa mở, đang check session (splash screen)</p>
+    <p><code>AuthUnauthenticated</code> — chưa đăng nhập → redirect <code>/login</code></p>
+    <p><code>AuthAuthenticated</code> — đã đăng nhập. Chứa: <code>userId</code>, <code>role</code>, <code>isOnboardingComplete</code>, <code>isBanned</code></p>
+    <p style="margin-bottom:0"><code>AuthError</code> — lỗi load profile → force logout</p>
+  </div>
+
+  <h2>Auth Provider — keepAlive + Supabase stream</h2>
+  <pre><code>@Riverpod(keepAlive: true)  // không tự dispose khi không ai watch
+class Auth extends _$Auth {
+  @override
+  AuthState build() {
+    // Lắng nghe Supabase auth stream
+    _subscription = Supabase.instance.client.auth
+        .onAuthStateChange.listen((data) {
+      if (data.session == null) {
+        state = const AuthUnauthenticated();
+      } else {
+        _fetchProfile(data.session!.user.id);
+      }
+    });
+    // ...
+  }
+}</code></pre>
+  <div class="tip"><strong>Tại sao keepAlive?</strong> Auth là global state — cần tồn tại suốt vòng đời app. Nếu không keepAlive, Riverpod dispose khi không có widget nào watch → mất session.</div>
+
+  <!-- ─── ROUTER REDIRECT ────────────────────────────────────────── -->
+  <h2>Router redirect — tự động đi đúng chỗ</h2>
+  <p>go_router có <code>redirect</code> callback, chạy mỗi khi auth state thay đổi:</p>
+  <pre><code>redirect: (context, state) {
+  final auth = ref.read(authProvider);
+
+  // Chưa đăng nhập → vào login
+  if (auth is AuthUnauthenticated) return '/login';
+
+  if (auth is AuthAuthenticated) {
+    if (auth.isBanned)               return '/banned';
+    if (!auth.isOnboardingComplete)  return '/onboarding';
+
+    // Đã login, đang ở trang public → vào home đúng role
+    if (publicRoutes.contains(currentPath)) {
+      return switch (auth.role) {
+        UserRole.recruiter => '/recruiter/home',
+        UserRole.admin     => '/admin/dashboard',
+        _                  => '/',           // seeker
+      };
+    }
+  }
+  return null; // không redirect
+}</code></pre>
+  <div class="tip"><strong>Dart 3 switch expression</strong> — không cần <code>case/break</code>. <code>_</code> là wildcard (default). Cô có thể hỏi về syntax này.</div>
+
+  <!-- ─── REF WATCH VS READ ─────────────────────────────────────── -->
+  <h2>ref.watch() vs ref.read()</h2>
+  <div class="card accent-left">
+    <p><code>ref.watch()</code> — trong <code>build()</code> của widget/provider. <strong>Reactive</strong>: rebuild tự động khi provider thay đổi.</p>
+    <p style="margin-bottom:0"><code>ref.read()</code> — trong event handler (<code>onPressed</code>). <strong>One-time</strong>: đọc giá trị tại thời điểm đó, không subscribe.</p>
+  </div>
+  <pre><code>// ✅ Trong provider — watch để auto-rebuild khi auth đổi
+@riverpod
+Future&lt;List&lt;AiSuggestion&gt;&gt; aiSuggestions(Ref ref) async {
+  final auth = ref.watch(authProvider);  // watch
+  if (auth is! AuthAuthenticated) return [];
+  ...
+}
+
+// ✅ Trong event handler — read vì chỉ cần giá trị hiện tại
+onPressed: () async {
+  final notifier = ref.read(aiEmbeddingNotifierProvider.notifier);
+  await notifier.rebuildSuggestions();
+}</code></pre>
+
+  <!-- ─── 3 SHELLS ───────────────────────────────────────────────── -->
+  <h2>3 Shell — bottom nav không bị re-render</h2>
+  <div class="card">
+    <p>App có 3 shell riêng: <strong>SeekerShell</strong> / <strong>RecruiterShell</strong> / <strong>AdminShell</strong>.</p>
+    <p>Dùng <code>StatefulShellRoute.indexedStack</code> — mỗi tab có navigator stack riêng. Chuyển tab không rebuild các tab khác, không mất state.</p>
+    <p style="margin-bottom:0">Root-level routes (<code>/job/:id</code>, <code>/chat/:id</code>, <code>/application/:id</code>) nằm ngoài shell để tránh crash <em>duplicate GlobalKey</em> khi navigate từ Notification.</p>
+  </div>
+
+  <!-- ─── QUIZ ────────────────────────────────────────────────────── -->
+  <div class="quiz">
+    <h2>🎯 Kiểm tra nhanh</h2>
+
+    <p class="quiz-q">1. Seeker vừa login xong. App redirect tới đâu và tại sao?</p>
+    <button class="option" onclick="check(this,'wrong')">Login page — vì chưa có session</button>
+    <button class="option" onclick="check(this,'correct')">/ (seeker home) — vì authProvider emit AuthAuthenticated với role=seeker, router redirect callback chạy</button>
+    <button class="option" onclick="check(this,'wrong')">Splash page — app luôn bắt đầu ở splash</button>
+    <div class="feedback" id="f1"></div>
+
+    <br>
+    <p class="quiz-q">2. Trong build() của một Provider, dùng ref.read() hay ref.watch() để lấy authProvider?</p>
+    <button class="option" onclick="check(this,'correct')">ref.watch() — để provider tự rebuild khi auth state thay đổi (ví dụ: logout)</button>
+    <button class="option" onclick="check(this,'wrong')">ref.read() — vì chỉ cần userId một lần</button>
+    <div class="feedback" id="f2"></div>
+
+    <br>
+    <p class="quiz-q">3. Tại sao AuthProvider có @Riverpod(keepAlive: true)?</p>
+    <button class="option" onclick="check(this,'wrong')">Để auth state load nhanh hơn</button>
+    <button class="option" onclick="check(this,'correct')">Auth là global state cần tồn tại suốt app — không keepAlive thì dispose khi không widget nào watch, mất session</button>
+    <button class="option" onclick="check(this,'wrong')">Là default của tất cả provider</button>
+    <div class="feedback" id="f3"></div>
+  </div>
+
+  <div class="card success-left">
+    <strong>Bài tiếp theo:</strong>
+    <a href="0005-colors-and-text.html">Bài 5 — Sửa màu &amp; text ngay trong demo</a><br>
+    <span style="color:var(--gray);font-size:0.9rem">Biết chính xác file nào cần mở khi cô yêu cầu thay đổi</span>
+  </div>
+
+  <footer>
+    <p>← <a href="0003-ai-suggestion.html">Bài 3: AI Suggestion</a><br>
+    Source: <a href="../lib/features/auth/presentation/providers/auth_provider.dart">auth_provider.dart</a> ·
+    <a href="../lib/core/router/app_router.dart">app_router.dart</a></p>
+  </footer>
+
+</div>
+<script>
+  let answered = {};
+  function check(btn, result) {
+    const btns = btn.parentElement.querySelectorAll('.option');
+    const feedbackEl = btn.parentElement.querySelector('.feedback');
+    if (answered[feedbackEl.id]) return;
+    answered[feedbackEl.id] = true;
+    btn.classList.add(result);
+    feedbackEl.classList.add('show');
+    if (result === 'correct') {
+      feedbackEl.classList.add('ok'); feedbackEl.textContent = '✓ Đúng rồi!';
+    } else {
+      feedbackEl.classList.add('no');
+      btns.forEach(b => { if (b.onclick.toString().includes("'correct'")) b.classList.add('correct'); });
+      feedbackEl.textContent = '✗ Chưa đúng — đáp án đúng đã được highlight xanh.';
+    }
+  }
+</script>
+</body>
+</html>

@@ -27,7 +27,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.jobconnect.job_connect</string>
+				<string>jobconnect</string>
 			</array>
 		</dict>
 	</array>
