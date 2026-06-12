@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:intl/intl.dart';
+import '../../../../core/errors/failure.dart';
+import '../../../../core/utils/either.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -95,10 +97,13 @@ class _UserDetailContent extends ConsumerWidget {
       if (confirmed != true) return;
 
       final repo = ref.read(adminRepositoryProvider);
-      await repo.banUser(
+      final result = await repo.banUser(
         userId: user['id'] as String,
         bannedUntil: DateTime(2099, 12, 31),
       );
+      if (!context.mounted) return;
+      _handleBanResult(context, ref, result);
+      return;
     } else {
       final hours = await showDialog<int>(
         context: context,
@@ -121,18 +126,34 @@ class _UserDetailContent extends ConsumerWidget {
       if (hours == null) return;
 
       final repo = ref.read(adminRepositoryProvider);
-      await repo.banUser(
+      final result = await repo.banUser(
         userId: user['id'] as String,
         bannedUntil: DateTime.now().add(Duration(hours: hours)),
       );
+      if (!context.mounted) return;
+      _handleBanResult(context, ref, result);
     }
+  }
 
-    if (context.mounted) {
-      ref.invalidate(adminUsersProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã cập nhật trạng thái người dùng')),
-      );
-    }
+  /// Honor the repository result: a Left (e.g. an RLS-blocked update that
+  /// affected 0 rows — see the PostgREST silent-UPDATE rule) must surface as a
+  /// real error, never a false "success" snackbar.
+  void _handleBanResult(
+    BuildContext context,
+    WidgetRef ref,
+    Either<Failure, void> result,
+  ) {
+    result.fold(
+      (failure) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(failure.message)),
+      ),
+      (_) {
+        ref.invalidate(adminUsersProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã cập nhật trạng thái người dùng')),
+        );
+      },
+    );
   }
 
   Future<void> _sendWarning(BuildContext context, WidgetRef ref) async {
@@ -168,13 +189,17 @@ class _UserDetailContent extends ConsumerWidget {
     if (message == null || message.isEmpty) return;
 
     final repo = ref.read(adminRepositoryProvider);
-    await repo.sendWarning(user['id'] as String, message);
+    final result = await repo.sendWarning(user['id'] as String, message);
 
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Đã gửi cảnh cáo')));
-    }
+    if (!context.mounted) return;
+    result.fold(
+      (failure) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(failure.message)),
+      ),
+      (_) => ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã gửi cảnh cáo')),
+      ),
+    );
   }
 
   @override
@@ -337,16 +362,22 @@ class _UserDetailContent extends ConsumerWidget {
               label: 'Mở khóa',
               onTap: () async {
                 final repo = ref.read(adminRepositoryProvider);
-                await repo.banUser(
+                final result = await repo.banUser(
                   userId: user['id'] as String,
                   bannedUntil: DateTime(2000, 1, 1),
                 );
-                if (context.mounted) {
-                  ref.invalidate(adminUsersProvider);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã mở khóa người dùng')),
-                  );
-                }
+                if (!context.mounted) return;
+                result.fold(
+                  (failure) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(failure.message)),
+                  ),
+                  (_) {
+                    ref.invalidate(adminUsersProvider);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Đã mở khóa người dùng')),
+                    );
+                  },
+                );
               },
             ),
         ],
