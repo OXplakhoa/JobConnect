@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/vietnam_provinces.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -240,29 +241,25 @@ class _MultiSelectChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
-
     return Wrap(
       spacing: AppSpacing.space2,
       runSpacing: AppSpacing.space2,
       children: options.map((option) {
         final isSelected = selectedValues.contains(option.value);
+        final brightness = Theme.of(context).brightness;
         return FilterChip(
-          label: Text(
-            option.label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : onSurfaceColor,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
+          label: Text(option.label),
           selected: isSelected,
+          showCheckmark: false,
+          labelStyle: AppTextStyles.bodySmall.copyWith(
+            color: isSelected
+                ? AppColors.onAccent
+                : AppColors.inkFor(brightness),
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          ),
+          selectedColor: AppColors.accent,
+          backgroundColor: AppColors.surfaceVariantFor(brightness),
           onSelected: (_) => onToggle(option.value),
-
-          // them thuoc tinh mau sac
-          selectedColor: primaryColor,
-          checkmarkColor: Colors.white,
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
         );
       }).toList(),
     );
@@ -287,9 +284,19 @@ class _SingleSelectChips extends StatelessWidget {
       runSpacing: AppSpacing.space2,
       children: options.map((option) {
         final isSelected = selectedValue == option.value;
+        final brightness = Theme.of(context).brightness;
         return FilterChip(
           label: Text(option.label),
           selected: isSelected,
+          showCheckmark: false,
+          labelStyle: AppTextStyles.bodySmall.copyWith(
+            color: isSelected
+                ? AppColors.onAccent
+                : AppColors.inkFor(brightness),
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          ),
+          selectedColor: AppColors.accent,
+          backgroundColor: AppColors.surfaceVariantFor(brightness),
           onSelected: (_) => onTap(option.value),
         );
       }).toList(),

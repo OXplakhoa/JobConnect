@@ -11,6 +11,7 @@ import '../../../../shared/presentation/widgets/app_gradient_background.dart';
 import '../../../../shared/presentation/widgets/glass_surface.dart';
 import '../../../../shared/presentation/widgets/premium_button.dart';
 import '../../../../shared/presentation/widgets/status_chip.dart';
+import '../../../recruiter/presentation/providers/job_categories_provider.dart';
 import '../../domain/entities/job_filter.dart';
 import '../../domain/entities/job_search_result.dart';
 import '../providers/job_search_provider.dart';
@@ -161,10 +162,15 @@ class _JobSearchPageState extends ConsumerState<JobSearchPage> {
   List<Widget> _buildFilterChipList() {
     final chips = <Widget>[];
 
+    // Resolve category ids to their human-readable names; fall back to the id
+    // only if the categories haven't loaded yet.
+    final categories = ref.watch(jobCategoriesProvider).valueOrNull ?? const [];
     for (final id in _activeFilter.categoryIds) {
+      final matches = categories.where((c) => c.id == id);
+      final name = matches.isEmpty ? id : matches.first.name;
       chips.add(
         _FilterChip(
-          label: 'Ngành: $id',
+          label: 'Ngành: $name',
           onRemove: () => _removeFilter(_activeFilter.copyWith(categoryIds: [])),
         ),
       );
