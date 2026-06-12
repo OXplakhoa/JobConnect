@@ -226,10 +226,10 @@ class AppStrings {
   static const myApplications = 'Đơn ứng tuyển của tôi';
   static const applicationDetail = 'Chi tiết Application';
   static const noApplications = 'Bạn chưa có đơn ứng tuyển nào';
-  static const withdrawApplication = 'Withdraw';
+  static const withdrawApplication = 'Rút đơn';
   static const withdrawConfirmTitle = 'Rút đơn ứng tuyển?';
   static const withdrawConfirmMessage =
-      'Bạn chỉ có thể rút khi Application còn ở trạng thái pending.';
+      'Bạn chỉ có thể rút lại khi đơn đang ở trạng thái "Đang chờ".';
   static const statusPending = 'Đang chờ';
   static const statusReviewing = 'Đang xem xét';
   static const statusInterview = 'Phỏng vấn';

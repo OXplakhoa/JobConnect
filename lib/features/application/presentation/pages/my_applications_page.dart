@@ -189,6 +189,7 @@ class _MyApplicationsPageState extends ConsumerState<MyApplicationsPage> {
           shape: const RoundedRectangleBorder(borderRadius: AppRadii.xl),
           title: const Text(AppStrings.withdrawConfirmTitle),
           content: const Text(AppStrings.withdrawConfirmMessage),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
             // Destructive choice = red text; the safe action (Cancel) is the
             // bolder default per §6 / CLAUDE.md dialog rule.
@@ -199,6 +200,12 @@ class _MyApplicationsPageState extends ConsumerState<MyApplicationsPage> {
             ),
             FilledButton(
               onPressed: () => dialogContext.pop(false),
+              // Shrink from the theme's full-width default so the safe/destructive
+              // pair sits inline instead of overflowing into a stacked bar.
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(96, 44),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+              ),
               child: const Text(AppStrings.cancel),
             ),
           ],
@@ -330,6 +337,7 @@ class _ApplicationCard extends StatelessWidget {
                     label: AppStrings.withdrawApplication,
                     variant: PremiumButtonVariant.destructive,
                     expand: false,
+                    icon: const Icon(Icons.undo_rounded),
                     onPressed: onWithdraw,
                   ),
                 ),
